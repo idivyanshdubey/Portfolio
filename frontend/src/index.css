@@ -138,6 +138,14 @@
     @apply bg-gray-800 border-gray-600 text-gray-100 focus:ring-cyan-500 focus:border-transparent placeholder-gray-400;
   }
 
+  .select-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+  }
+  
+  .dark .select-field {
+    @apply bg-gray-800 border-gray-600 text-gray-100 focus:ring-cyan-500 focus:border-transparent;
+  }
+
   /* Theme toggle button styles */
   .theme-toggle-btn {
     @apply relative z-50;

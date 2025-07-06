@@ -37,7 +37,7 @@ AsyncSessionLocal = async_sessionmaker(
 Base = declarative_base()
 
 # Metadata for migrations
-metadata = MetaData()
+db_metadata = MetaData()
 
 def get_db():
     """Dependency to get database session"""

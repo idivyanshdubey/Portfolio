@@ -40,7 +40,7 @@ class SentimentResponse(BaseModel):
 
 class DataVisualizationRequest(BaseModel):
     chart_type: str  # "bar", "line", "scatter", "histogram", "heatmap"
-    data: dict
+    data: list  # List of dictionaries
     title: Optional[str] = None
     x_label: Optional[str] = None
     y_label: Optional[str] = None
@@ -154,42 +154,77 @@ async def create_visualization(request: DataVisualizationRequest):
                     "data": request.data,
                     "title": request.title or "Data Visualization",
                     "message": "Advanced visualization requires plotly and pandas"
-                }
+                },
+                "chart_type": request.chart_type,
+                "title": request.title or "Data Visualization"
             }
         
         # Convert data to pandas DataFrame
-        df = pd.DataFrame(request.data)
+        if isinstance(request.data, list):
+            df = pd.DataFrame(request.data)
+        else:
+            df = pd.DataFrame([request.data])
         
         # Create visualization based on chart type
         try:
             if request.chart_type == "bar":
-                fig = px.bar(df, title=request.title)
+                # For bar charts, use the first column as x-axis and second as y-axis
+                columns = df.columns.tolist()
+                if len(columns) >= 2:
+                    fig = px.bar(df, x=columns[0], y=columns[1], title=request.title)
+                else:
+                    fig = px.bar(df, title=request.title)
             elif request.chart_type == "line":
-                fig = px.line(df, title=request.title)
+                columns = df.columns.tolist()
+                if len(columns) >= 2:
+                    fig = px.line(df, x=columns[0], y=columns[1], title=request.title)
+                else:
+                    fig = px.line(df, title=request.title)
             elif request.chart_type == "scatter":
-                fig = px.scatter(df, title=request.title)
+                columns = df.columns.tolist()
+                if len(columns) >= 2:
+                    fig = px.scatter(df, x=columns[0], y=columns[1], title=request.title)
+                else:
+                    fig = px.scatter(df, title=request.title)
             elif request.chart_type == "histogram":
                 fig = px.histogram(df, title=request.title)
             elif request.chart_type == "heatmap":
-                fig = px.imshow(df.corr(), title=request.title)
+                # For heatmap, try to create correlation matrix
+                numeric_df = df.select_dtypes(include=[np.number])
+                if len(numeric_df.columns) > 1:
+                    fig = px.imshow(numeric_df.corr(), title=request.title)
+                else:
+                    fig = px.imshow(df, title=request.title)
             else:
                 raise HTTPException(status_code=400, detail="Unsupported chart type")
             
             # Convert to JSON for frontend
             chart_json = fig.to_json()
             if chart_json:
-                return {"chart_data": json.loads(chart_json)}
+                return {
+                    "chart_data": json.loads(chart_json),
+                    "chart_type": request.chart_type,
+                    "title": request.title or "Data Visualization"
+                }
             else:
-                return {"chart_data": {"error": "Failed to generate chart"}}
+                return {
+                    "chart_data": {"error": "Failed to generate chart"},
+                    "chart_type": request.chart_type,
+                    "title": request.title or "Data Visualization"
+                }
                 
         except Exception as viz_error:
-            return {"chart_data": {"error": f"Visualization error: {str(viz_error)}"}}
+            return {
+                "chart_data": {"error": f"Visualization error: {str(viz_error)}"},
+                "chart_type": request.chart_type,
+                "title": request.title or "Data Visualization"
+            }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating visualization: {str(e)}")
 
 @router.post("/image-classification")
-async def classify_image(file: UploadFile = File(...)):
+async def classify_image(file: UploadFile = File(..., alias="image")):
     """Classify uploaded image"""
     try:
         # Read and validate image

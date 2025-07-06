@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader, Sparkles, MessageSquare } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import GlitchText from '../components/GlitchText';
+import '../components/GlitchText.css';
 
 interface Message {
   id: string;
@@ -12,14 +15,14 @@ const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your AI assistant. I can help you with questions about AI, machine learning, data science, and my portfolio. What would you like to know?",
+      text: "## 🤖 **Hello! I'm Jarvis**\n\nI'm your AI assistant and I can help you with:\n\n• **Projects**: Explore my data science and AI projects\n• **Skills**: Learn about my technical expertise\n• **Demos**: Try interactive AI demonstrations\n• **Contact**: Get in touch for collaboration\n\n**What would you like to know?**",
       sender: 'bot',
       timestamp: new Date()
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const suggestions = [
     "Tell me about your AI projects",
@@ -31,8 +34,11 @@ const Chatbot: React.FC = () => {
   ];
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -119,10 +125,7 @@ const Chatbot: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-primary-600 to-accent-600 rounded-full flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">Jarvis</h1>
+            <GlitchText speed={0.7} enableShadows={true} enableOnHover={false} className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Jarvis</GlitchText>
           </div>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Have a conversation with my AI assistant. Ask about my projects, skills, 
@@ -133,7 +136,7 @@ const Chatbot: React.FC = () => {
         {/* Chat Interface */}
         <div className="card h-[600px] flex flex-col">
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -158,7 +161,26 @@ const Chatbot: React.FC = () => {
                       ? 'bg-primary-600 text-white'
                       : 'bg-gray-100 text-gray-900'
                   }`}>
-                    <p className="text-sm">{message.text}</p>
+                    <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
+                      <ReactMarkdown
+                        components={{
+                          h1: ({children}) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-base font-bold mb-2">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
+                          p: ({children}) => <p className="mb-2">{children}</p>,
+                          ul: ({children}) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                          ol: ({children}) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                          li: ({children}) => <li className="text-sm">{children}</li>,
+                          strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                          em: ({children}) => <em className="italic">{children}</em>,
+                          code: ({children}) => <code className="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded text-xs">{children}</code>,
+                          pre: ({children}) => <pre className="bg-gray-200 dark:bg-gray-700 p-2 rounded text-xs overflow-x-auto mb-2">{children}</pre>,
+                          hr: () => <hr className="my-3 border-gray-300 dark:border-gray-600" />
+                        }}
+                      >
+                        {message.text}
+                      </ReactMarkdown>
+                    </div>
                     <p className={`text-xs mt-2 ${
                       message.sender === 'user' ? 'text-primary-100' : 'text-gray-500'
                     }`}>
@@ -168,7 +190,6 @@ const Chatbot: React.FC = () => {
                 </div>
               </div>
             ))}
-            
             {isLoading && (
               <div className="flex justify-start">
                 <div className="flex items-start space-x-3">
@@ -184,27 +205,24 @@ const Chatbot: React.FC = () => {
                 </div>
               </div>
             )}
-            
-            <div ref={messagesEndRef} />
           </div>
 
-          {/* Suggestions */}
-          {messages.length === 1 && (
-            <div className="px-6 pb-4">
-              <p className="text-sm text-gray-600 mb-3">Try asking about:</p>
-              <div className="flex flex-wrap gap-2">
-                {suggestions.map((suggestion, index) => (
-                  <button
-                    key={suggestion}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-full transition-colors"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
+          {/* Suggestions - always visible */}
+          <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 dark:bg-gray-900/40">
+            <p className="text-sm text-gray-600 mb-3 font-medium">Try asking about:</p>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={suggestion}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="px-3 py-2 bg-white dark:bg-gray-800 hover:bg-primary-100 dark:hover:bg-primary-900 text-gray-700 dark:text-gray-200 text-sm rounded-full transition-all duration-200 shadow-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-400 scale-100 hover:scale-105"
+                  style={{ transition: 'transform 0.15s' }}
+                >
+                  {suggestion}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
 
           {/* Input Area */}
           <div className="border-t border-gray-200 p-6">

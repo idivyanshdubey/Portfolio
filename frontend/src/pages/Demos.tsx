@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Brain, Upload, Send, Loader, CheckCircle, AlertCircle } from 'lucide-react';
+import Plot from 'react-plotly.js';
 
 const Demos: React.FC = () => {
   const [activeDemo, setActiveDemo] = useState('sentiment');
@@ -67,7 +68,7 @@ const Demos: React.FC = () => {
         console.error('Please enter some text');
         return;
       }
-      handleDemoSubmit('sentiment', { text });
+      handleDemoSubmit('sentiment-analysis', { text });
     };
 
     return (
@@ -131,6 +132,7 @@ const Demos: React.FC = () => {
 
   const VisualizationDemo = () => {
     const [data, setData] = useState('');
+    const [chartType, setChartType] = useState('bar');
 
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -138,12 +140,73 @@ const Demos: React.FC = () => {
         console.error('Please enter some data');
         return;
       }
-      handleDemoSubmit('visualization', { data });
+      
+      // Try to parse the data as JSON or CSV
+      let parsedData;
+      try {
+        parsedData = JSON.parse(data);
+      } catch {
+        // If not JSON, try to parse as CSV
+        const lines = data.trim().split('\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        parsedData = lines.slice(1).map(line => {
+          const values = line.split(',').map(v => v.trim());
+          const obj: any = {};
+          headers.forEach((header, index) => {
+            obj[header] = values[index] || '';
+          });
+          return obj;
+        });
+      }
+      
+      handleDemoSubmit('data-visualization', { 
+        chart_type: chartType,
+        data: parsedData,
+        title: `${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart`
+      });
     };
 
     return (
       <div className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chart Type
+              </label>
+              <select
+                value={chartType}
+                onChange={(e) => setChartType(e.target.value)}
+                className="select-field"
+                disabled={loading}
+              >
+                <option value="bar">Bar Chart</option>
+                <option value="line">Line Chart</option>
+                <option value="scatter">Scatter Plot</option>
+                <option value="histogram">Histogram</option>
+                <option value="heatmap">Heatmap</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sample Data
+              </label>
+              <button
+                type="button"
+                onClick={() => setData(`Month,Sales,Expenses
+Jan,12000,8000
+Feb,15000,9000
+Mar,18000,11000
+Apr,14000,8500
+May,22000,13000
+Jun,25000,15000`)}
+                className="btn-secondary w-full"
+                disabled={loading}
+              >
+                Load Sample Data
+              </button>
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Enter CSV data or JSON
@@ -151,7 +214,13 @@ const Demos: React.FC = () => {
             <textarea
               value={data}
               onChange={(e) => setData(e.target.value)}
-              placeholder="Enter your data here (CSV or JSON format)..."
+              placeholder={`Sample CSV format:
+Month,Sales,Expenses
+Jan,12000,8000
+Feb,15000,9000
+
+Or JSON format:
+[{"month":"Jan","sales":12000},{"month":"Feb","sales":15000}]`}
               className="textarea-field h-32 font-mono text-sm"
               disabled={loading}
             />
@@ -179,10 +248,21 @@ const Demos: React.FC = () => {
           <div className="card p-6">
             <h3 className="text-lg font-semibold mb-4">Generated Chart</h3>
             <div className="bg-gray-100 rounded-lg p-4 text-center">
-              <p className="text-gray-600">Chart visualization would appear here</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Chart type: {results.chart_type || 'Bar Chart'}
-              </p>
+              {results.chart_data?.error ? (
+                <div className="text-red-600">
+                  <p className="font-medium">Visualization Error</p>
+                  <p className="text-sm">{results.chart_data.error}</p>
+                </div>
+              ) : (
+                                  results.chart_data && (
+                    <Plot
+                      data={results.chart_data.data}
+                      layout={results.chart_data.layout}
+                      config={{ responsive: true }}
+                      style={{ width: '100%', height: '400px' }}
+                    />
+                  )
+              )}
             </div>
           </div>
         )}
@@ -214,7 +294,7 @@ const Demos: React.FC = () => {
       setResults(null);
 
       try {
-        const response = await fetch('http://localhost:8000/api/demos/classification', {
+        const response = await fetch('http://localhost:8000/api/demos/image-classification', {
           method: 'POST',
           body: formData,
         });
@@ -280,14 +360,32 @@ const Demos: React.FC = () => {
 
         {results && (
           <div className="card p-6">
-            <h3 className="text-lg font-semibold mb-4">Classification Results</h3>
+            <h3 className="text-lg font-semibold mb-4">Image Analysis Results</h3>
             <div className="space-y-3">
-              {results.predictions?.map((pred: any, index: number) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="font-medium">{pred.label}:</span>
-                  <span className="text-gray-700">{(pred.confidence * 100).toFixed(1)}%</span>
-                </div>
-              ))}
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Filename:</span>
+                <span className="text-gray-700">{results.filename}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Size:</span>
+                <span className="text-gray-700">{results.size}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Mode:</span>
+                <span className="text-gray-700">{results.mode}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Orientation:</span>
+                <span className="text-gray-700">{results.orientation}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Dominant Color:</span>
+                <span className="text-gray-700">{results.dominant_color}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">File Size:</span>
+                <span className="text-gray-700">{results.file_size_kb?.toFixed(1)} KB</span>
+              </div>
             </div>
           </div>
         )}

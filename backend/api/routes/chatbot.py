@@ -4,6 +4,15 @@ from pydantic import BaseModel
 from datetime import datetime
 import json
 import re
+import sys
+import os
+
+# Add the parent directory to the path to import the ai_agent module
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from ai_agent.manager import agent_manager
+from ai_agent.tools import execute_tool, get_available_tools
+from ai_agent.ai_integration import get_ai_integration
 
 router = APIRouter()
 
@@ -132,16 +141,21 @@ def get_suggestions(category: str) -> List[str]:
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat_with_ai(request: ChatMessage):
-    """Chat with the AI assistant"""
+    """Chat with the AI assistant using the enhanced AI agent"""
     try:
-        # Analyze the message
-        category, confidence = analyze_message(request.message)
+        print(f"🔍 Processing chat request: '{request.message}'")
         
-        # Generate response
-        response = generate_response(category, request.message, confidence)
+        # Get or create agent for this session
+        session_id = request.session_id or "default-session"
+        print(f"📋 Session ID: {session_id}")
         
-        # Get suggestions
-        suggestions = get_suggestions(category)
+        agent = agent_manager.get_or_create_agent(session_id)
+        print(f"🤖 Agent created: {agent.name}")
+        
+        # Process message with AI agent
+        print("🔄 Processing message with AI agent...")
+        result = await agent.process_message(request.message, session_id)
+        print(f"✅ AI response generated: {result.get('category', 'unknown')} category")
         
         # Store in session if session_id provided
         if request.session_id:
@@ -155,19 +169,30 @@ async def chat_with_ai(request: ChatMessage):
             
             chat_sessions[request.session_id]["messages"].append({
                 "user_message": request.message,
-                "ai_response": response,
-                "timestamp": datetime.now().isoformat()
+                "ai_response": result["response"],
+                "timestamp": datetime.now().isoformat(),
+                "agent_data": {
+                    "category": result.get("category"),
+                    "confidence": result.get("confidence"),
+                    "sentiment": result.get("sentiment")
+                }
             })
         
-        return ChatResponse(
+        response = ChatResponse(
             message=request.message,
-            response=response,
+            response=result["response"],
             timestamp=datetime.now(),
-            confidence=confidence,
-            suggestions=suggestions
+            confidence=result.get("confidence", 0.8),
+            suggestions=result.get("suggestions", [])
         )
         
+        print(f"🎯 Returning response with {len(result['response'])} characters")
+        return response
+        
     except Exception as e:
+        print(f"❌ Error in chat_with_ai: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error processing chat: {str(e)}")
 
 @router.get("/suggestions")
@@ -176,10 +201,14 @@ async def get_chat_suggestions():
     return {
         "suggestions": [
             "Tell me about your projects",
-            "Show me the AI demos",
-            "What skills do you have?",
+            "Tell me about your AI projects",
+            "What technologies do you use?",
+            "Show me your machine learning demos",
             "How can I contact you?",
-            "Try the sentiment analysis demo"
+            "What's your experience with Python?",
+            "Tell me about your data science work",
+            "Career advice for tech",
+            "Learning resources"
         ]
     }
 
@@ -196,7 +225,127 @@ async def clear_chat_session(session_id: str):
     """Clear chat session history"""
     if session_id in chat_sessions:
         del chat_sessions[session_id]
+    
+    # Also clear agent session
+    if session_id in agent_manager.session_agents:
+        agent_id = agent_manager.session_agents[session_id]
+        if agent_id in agent_manager.agents and agent_id != "default":
+            del agent_manager.agents[agent_id]
+        del agent_manager.session_agents[session_id]
+        if session_id in agent_manager.last_activity:
+            del agent_manager.last_activity[session_id]
+    
     return {"message": "Session cleared successfully"}
+
+@router.get("/agent/status/{session_id}")
+async def get_agent_status(session_id: str):
+    """Get AI agent status for a session"""
+    try:
+        status = agent_manager.get_agent_status(session_id)
+        return status
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting agent status: {str(e)}")
+
+@router.get("/agent/status")
+async def get_all_agents_status():
+    """Get status of all AI agents"""
+    try:
+        # Clean up inactive agents first
+        agent_manager.cleanup_inactive_agents()
+        return agent_manager.get_all_agents_status()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting agents status: {str(e)}")
+
+@router.post("/agent/memory/{session_id}")
+async def add_agent_memory(session_id: str, memory_data: dict):
+    """Add a memory to the AI agent"""
+    try:
+        agent = agent_manager.get_or_create_agent(session_id)
+        agent.add_memory(
+            content=memory_data.get("content", ""),
+            importance=memory_data.get("importance", 0.5),
+            memory_type=memory_data.get("memory_type", "conversation"),
+            context=memory_data.get("context", {})
+        )
+        return {"message": "Memory added successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error adding memory: {str(e)}")
+
+@router.get("/agent/memory/{session_id}")
+async def get_agent_memories(session_id: str, query: str = "", limit: int = 5):
+    """Get relevant memories from the AI agent"""
+    try:
+        agent = agent_manager.get_or_create_agent(session_id)
+        memories = agent.get_relevant_memories(query, limit)
+        return {
+            "memories": [
+                {
+                    "content": memory.content,
+                    "timestamp": memory.timestamp.isoformat(),
+                    "importance": memory.importance,
+                    "memory_type": memory.memory_type,
+                    "context": memory.context
+                }
+                for memory in memories
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting memories: {str(e)}")
+
+@router.get("/tools")
+async def get_tools():
+    """Get list of available tools"""
+    try:
+        tools = get_available_tools()
+        return {"tools": tools}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting tools: {str(e)}")
+
+@router.post("/tools/execute")
+async def execute_tool_endpoint(tool_request: dict):
+    """Execute a tool"""
+    try:
+        tool_name = tool_request.get("tool_name")
+        parameters = tool_request.get("parameters", {})
+        
+        if not tool_name:
+            raise HTTPException(status_code=400, detail="Tool name is required")
+        
+        result = execute_tool(tool_name, **parameters)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error executing tool: {str(e)}")
+
+@router.get("/ai/status")
+async def get_ai_status():
+    """Get AI integration status and capabilities"""
+    try:
+        ai_integration = get_ai_integration()
+        return {
+            "status": "available",
+            "model_info": ai_integration.get_model_info(),
+            "message": "AI integration is ready to use"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error checking AI status: {str(e)}")
+
+@router.post("/ai/generate-code")
+async def generate_code(request: dict):
+    """Generate code using AI"""
+    try:
+        prompt = request.get("prompt")
+        language = request.get("language", "python")
+        
+        if not prompt:
+            raise HTTPException(status_code=400, detail="Prompt is required")
+        
+        ai_integration = get_ai_integration()
+        result = await ai_integration.generate_code(prompt, language)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating code: {str(e)}")
+
+
 
 @router.get("/capabilities")
 async def get_chatbot_capabilities():
