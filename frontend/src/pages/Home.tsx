@@ -16,10 +16,46 @@ import {
   Server,
   Layers,
   X,
-  Download
+  Download,
+  Briefcase,
+  GraduationCap,
+  Award as AwardIcon,
+  BookOpen,
+  User as UserIcon
 } from 'lucide-react';
 import DecryptedText from '../components/DecryptedText';
 import InfiniteScroll from '../components/InfiniteScroll';
+import { useEffect } from 'react';
+
+const timelineIcons = {
+  university: GraduationCap,
+  sports: Star,
+  project: BookOpen,
+  internship: Briefcase,
+  graduation: GraduationCap,
+  job: Briefcase,
+  research: BookOpen,
+  certification: Award,
+  default: UserIcon
+};
+
+// Fix: Define a type for timeline items
+interface TimelineItem {
+  year: number;
+  event: string;
+}
+
+function getTimelineIcon(event: string) {
+  if (event.includes('B.Tech')) return GraduationCap;
+  if (event.includes('Sports') || event.includes('Olympiad')) return Star;
+  if (event.includes('project')) return BookOpen;
+  if (event.includes('Interned') || event.includes('Analyst')) return Briefcase;
+  if (event.includes('Graduated')) return GraduationCap;
+  if (event.includes('Software Engineer')) return Briefcase;
+  if (event.includes('research')) return BookOpen;
+  if (event.includes('Oracle Certified')) return Award;
+  return UserIcon;
+}
 
 const Home: React.FC = () => {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
@@ -81,6 +117,22 @@ const Home: React.FC = () => {
     }
   ];
 
+  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+  const [timelineError, setTimelineError] = useState(false);
+  useEffect(() => {
+    fetch('/data/career_timeline.json')
+      .then(res => {
+        if (!res.ok) throw new Error('Not found');
+        return res.json();
+      })
+      .then((data) => {
+        // Sort by year ascending
+        data.sort((a: TimelineItem, b: TimelineItem) => a.year - b.year);
+        setTimeline(data);
+      })
+      .catch(() => setTimelineError(true));
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -103,7 +155,7 @@ const Home: React.FC = () => {
                   />
                 </span>
                 <br />
-                <span className="text-gray-900 dark:text-gray-100">Data Science</span>
+                <span className="text-gray-900 dark:text-gray-100">Portfolio</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
                 <DecryptedText 
@@ -331,6 +383,59 @@ const Home: React.FC = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* Career Timeline Section */}
+      <section className="py-20 bg-white dark:bg-gray-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">Career Timeline</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              A journey through my academic, extracurricular, and professional milestones
+            </p>
+          </div>
+          {timelineError ? (
+            <div className="text-center text-red-500 dark:text-red-400 text-lg py-8">
+              Timeline data not found. Please ensure <code>data/career_timeline.json</code> exists in the public folder.
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="border-l-4 border-cyan-500 dark:border-cyan-400 absolute h-full left-6 top-0"></div>
+              <ul className="space-y-12">
+                {timeline.map((item: TimelineItem, idx) => {
+                  const Icon = getTimelineIcon(item.event);
+                  return (
+                    <li key={idx} className="relative flex items-start group animate-fadeInTimeline">
+                      <span className="absolute -left-2.5 flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-lg group-hover:scale-110 transition-transform ring-4 ring-white dark:ring-gray-900">
+                        <Icon className="w-7 h-7" />
+                      </span>
+                      <div className="ml-16 w-full">
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{item.year}</span>
+                          <span className="text-xs px-2 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 rounded-full shadow">Milestone</span>
+                        </div>
+                        <div className="mt-2 bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-5 border border-cyan-100 dark:border-cyan-900 transition-all duration-300 group-hover:shadow-2xl">
+                          <span className="block text-gray-700 dark:text-gray-300 text-base max-w-xl">
+                            {item.event}
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+              <style>{`
+                @keyframes fadeInTimeline {
+                  0% { opacity: 0; transform: translateY(30px); }
+                  100% { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadeInTimeline {
+                  animation: fadeInTimeline 0.7s cubic-bezier(0.4,0,0.2,1);
+                }
+              `}</style>
+            </div>
+          )}
         </div>
       </section>
     </div>
