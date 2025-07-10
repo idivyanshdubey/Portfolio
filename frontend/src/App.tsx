@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import Demos from './pages/Demos';
@@ -29,6 +30,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <ScrollToTop />
           <Toaster
             position="top-right"
             toastOptions={{

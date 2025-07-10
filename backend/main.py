@@ -19,6 +19,7 @@ demos = APIRouter()
 blog = APIRouter()
 analytics = APIRouter()
 chatbot = APIRouter()
+contact = APIRouter()
 
 # Try to import actual route modules
 try:
@@ -27,6 +28,7 @@ try:
     import api.routes.blog as blog_module
     import api.routes.analytics as analytics_module
     import api.routes.chatbot as chatbot_module
+    import api.routes.contact as contact_module
     
     # Use the actual routers if import successful
     projects = projects_module.router
@@ -34,7 +36,9 @@ try:
     blog = blog_module.router
     analytics = analytics_module.router
     chatbot = chatbot_module.router
+    contact = contact_module.router
     print("✓ All route modules imported successfully")
+    print(f"✓ Contact router: {contact}")
     
 except ImportError as e:
     print(f"Warning: Could not import some routes: {e}")
@@ -60,6 +64,10 @@ except ImportError as e:
     @chatbot.get("/")
     async def get_chatbot():
         return {"chatbot": "AI assistant ready to help!"}
+    
+    @contact.post("/submit")
+    async def submit_contact():
+        return {"success": True, "message": "Contact form submitted successfully!"}
 
 # Create FastAPI app
 app = FastAPI(
@@ -85,11 +93,21 @@ app.include_router(demos, prefix="/api/demos", tags=["demos"])
 app.include_router(blog, prefix="/api/blog", tags=["blog"])
 app.include_router(analytics, prefix="/api/analytics", tags=["analytics"])
 app.include_router(chatbot, prefix="/api/chatbot", tags=["chatbot"])
+app.include_router(contact, prefix="/api/contact", tags=["contact"])
 
 # Health check endpoint
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "message": "AI Portfolio API is running!"}
+
+# Debug endpoint to check router status
+@app.get("/api/debug/routers")
+async def debug_routers():
+    return {
+        "contact_router": str(contact),
+        "contact_routes": [str(route) for route in contact.routes] if hasattr(contact, 'routes') else [],
+        "app_routes": [str(route) for route in app.routes]
+    }
 
 # Database health check endpoint
 @app.get("/api/health/db")

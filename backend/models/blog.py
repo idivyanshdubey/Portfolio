@@ -13,7 +13,7 @@ class BlogPost(BaseModel):
     tags = Column(ARRAY(String), default=[])
     featured_image = Column(String(500))
     published = Column(Boolean, default=False)
-    metadata = Column(JSON, default={})
+    meta_data = Column(JSON, default={})
     
     def __repr__(self):
         return f"<BlogPost(id={self.id}, title='{self.title}')>" 

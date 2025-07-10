@@ -1,5 +1,33 @@
-# Ignore environment variables
+# Environment variables and secrets
 .env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+
+# EmailJS and other API credentials
+emailjs.config.js
+credentials.json
+secrets.json
+
+# Contact form and email configuration files
+backend/api/routes/contact.py
+backend/models/contact.py
+backend/test_emailjs.py
+backend/EMAIL_SETUP.md
+frontend/src/components/ContactForm.tsx
+frontend/src/config/emailjs.ts
+
+# Database files with contact data
+*.db
+*.sqlite
+*.sqlite3
+portfolio.db
+
+# Log files that might contain contact information
+*.log
+logs/
 
 # Python
 __pycache__/

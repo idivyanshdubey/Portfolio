@@ -13,7 +13,7 @@ class Project(BaseModel):
     technologies = Column(ARRAY(String), default=[])
     category = Column(String(100), index=True)
     featured = Column(Boolean, default=False)
-    metadata = Column(JSON, default={})
+    meta_data = Column(JSON, default={})
     
     def __repr__(self):
         return f"<Project(id={self.id}, title='{self.title}')>" 
