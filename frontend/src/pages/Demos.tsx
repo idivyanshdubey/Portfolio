@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, Upload, Send, Loader, CheckCircle, AlertCircle } from 'lucide-react';
+import { Brain, Upload, Send, Loader } from 'lucide-react';
 import Plot from 'react-plotly.js';
 
 const Demos: React.FC = () => {

@@ -1,140 +1,176 @@
-from fastapi import APIRouter, HTTPException
-from typing import List, Optional
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from sqlalchemy import func, desc
 from datetime import datetime, timedelta
+from typing import List, Dict, Any
 import json
 
-router = APIRouter()
+from database import get_db
+from models.contact import Contact
 
-# Pydantic models
-class AnalyticsEvent(BaseModel):
-    event_type: str  # "page_view", "demo_used", "project_viewed", "blog_read"
-    page: str
-    user_agent: Optional[str] = None
-    timestamp: datetime = datetime.now()
+router = APIRouter(prefix="/analytics", tags=["analytics"])
 
-class AnalyticsResponse(BaseModel):
-    total_visits: int
-    unique_visitors: int
-    popular_pages: List[dict]
-    demo_usage: dict
-    recent_activity: List[dict]
-
-# Sample analytics data (in a real app, this would come from a database)
-analytics_data = {
-    "events": [
-        {"event_type": "page_view", "page": "/", "timestamp": datetime.now() - timedelta(hours=1)},
-        {"event_type": "page_view", "page": "/projects", "timestamp": datetime.now() - timedelta(hours=2)},
-        {"event_type": "demo_used", "page": "/demos/sentiment-analysis", "timestamp": datetime.now() - timedelta(hours=3)},
-        {"event_type": "project_viewed", "page": "/projects/1", "timestamp": datetime.now() - timedelta(hours=4)},
-        {"event_type": "blog_read", "page": "/blog/getting-started-machine-learning-python", "timestamp": datetime.now() - timedelta(hours=5)},
-    ],
-    "visitors": {
-        "total": 1250,
-        "unique": 890,
-        "this_month": 156
-    }
-}
-
-@router.post("/track")
-async def track_event(event: AnalyticsEvent):
-    """Track user interaction events"""
+@router.get("/overview")
+async def get_analytics_overview(
+    time_range: str = "7d",
+    db: Session = Depends(get_db)
+):
+    """Get analytics overview for the specified time range"""
     try:
-        # In a real app, you'd save this to a database
-        analytics_data["events"].append(event.dict())
-        return {"status": "success", "message": "Event tracked successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error tracking event: {str(e)}")
-
-@router.get("/dashboard", response_model=AnalyticsResponse)
-async def get_analytics_dashboard():
-    """Get analytics dashboard data"""
-    try:
-        # Calculate popular pages
-        page_views = {}
-        for event in analytics_data["events"]:
-            if event["event_type"] == "page_view":
-                page = event["page"]
-                page_views[page] = page_views.get(page, 0) + 1
-        
-        popular_pages = [
-            {"page": page, "views": count}
-            for page, count in sorted(page_views.items(), key=lambda x: x[1], reverse=True)[:5]
-        ]
-        
-        # Calculate demo usage
-        demo_usage = {}
-        for event in analytics_data["events"]:
-            if event["event_type"] == "demo_used":
-                demo = event["page"].split("/")[-1]
-                demo_usage[demo] = demo_usage.get(demo, 0) + 1
-        
-        # Get recent activity
-        recent_activity = analytics_data["events"][-10:]  # Last 10 events
-        
-        return AnalyticsResponse(
-            total_visits=analytics_data["visitors"]["total"],
-            unique_visitors=analytics_data["visitors"]["unique"],
-            popular_pages=popular_pages,
-            demo_usage=demo_usage,
-            recent_activity=recent_activity
-        )
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting analytics: {str(e)}")
-
-@router.get("/stats/summary")
-async def get_stats_summary():
-    """Get summary statistics"""
-    try:
-        total_events = len(analytics_data["events"])
-        demo_events = len([e for e in analytics_data["events"] if e["event_type"] == "demo_used"])
-        project_views = len([e for e in analytics_data["events"] if e["event_type"] == "project_viewed"])
-        blog_reads = len([e for e in analytics_data["events"] if e["event_type"] == "blog_read"])
-        
-        return {
-            "total_events": total_events,
-            "demo_usage": demo_events,
-            "project_views": project_views,
-            "blog_reads": blog_reads,
-            "engagement_rate": round((demo_events + project_views + blog_reads) / total_events * 100, 2) if total_events > 0 else 0
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting stats: {str(e)}")
-
-@router.get("/trends")
-async def get_trends(days: int = 7):
-    """Get trends over the last N days"""
-    try:
+        # Calculate date range
         end_date = datetime.now()
-        start_date = end_date - timedelta(days=days)
+        if time_range == "7d":
+            start_date = end_date - timedelta(days=7)
+        elif time_range == "30d":
+            start_date = end_date - timedelta(days=30)
+        elif time_range == "90d":
+            start_date = end_date - timedelta(days=90)
+        else:
+            start_date = end_date - timedelta(days=7)
+
+        # Get contact submissions
+        contacts = db.query(Contact).filter(
+            Contact.created_at >= start_date,
+            Contact.created_at <= end_date
+        ).all()
+
+        # Calculate metrics
+        total_contacts = len(contacts)
+        read_contacts = len([c for c in contacts if getattr(c, 'is_read', False)])
+        unread_contacts = total_contacts - read_contacts
         
-        # Filter events within the date range
-        recent_events = [
-            event for event in analytics_data["events"]
-            if start_date <= event["timestamp"] <= end_date
-        ]
-        
-        # Group by day
-        daily_stats = {}
-        for event in recent_events:
-            date_key = event["timestamp"].strftime("%Y-%m-%d")
-            if date_key not in daily_stats:
-                daily_stats[date_key] = {"page_views": 0, "demos": 0, "projects": 0}
-            
-            if event["event_type"] == "page_view":
-                daily_stats[date_key]["page_views"] += 1
-            elif event["event_type"] == "demo_used":
-                daily_stats[date_key]["demos"] += 1
-            elif event["event_type"] == "project_viewed":
-                daily_stats[date_key]["projects"] += 1
-        
+        # Calculate response rate (assuming emails were sent)
+        response_rate = (read_contacts / total_contacts * 100) if total_contacts > 0 else 0
+
+        # Get daily contact trends
+        daily_contacts = db.query(
+            func.date(Contact.created_at).label('date'),
+            func.count(Contact.id).label('count')
+        ).filter(
+            Contact.created_at >= start_date,
+            Contact.created_at <= end_date
+        ).group_by(func.date(Contact.created_at)).order_by('date').all()
+
+        # Get contact sources
+        source_stats = db.query(
+            Contact.source,
+            func.count(Contact.id).label('count')
+        ).filter(
+            Contact.created_at >= start_date,
+            Contact.created_at <= end_date
+        ).group_by(Contact.source).all()
+
         return {
-            "period": f"Last {days} days",
-            "daily_stats": daily_stats,
-            "total_events": len(recent_events)
+            "time_range": time_range,
+            "period": {
+                "start": start_date.isoformat(),
+                "end": end_date.isoformat()
+            },
+            "metrics": {
+                "total_contacts": total_contacts,
+                "read_contacts": read_contacts,
+                "unread_contacts": unread_contacts,
+                "response_rate": round(response_rate, 1),
+                "avg_daily_contacts": round(total_contacts / max(1, (end_date - start_date).days), 1)
+            },
+            "trends": {
+                "daily_contacts": [
+                    {"date": str(row.date), "count": row.count}
+                    for row in daily_contacts
+                ]
+            },
+            "sources": [
+                {"source": row.source, "count": row.count}
+                for row in source_stats
+            ]
         }
-        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting trends: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Error fetching analytics: {str(e)}")
+
+@router.get("/contacts")
+async def get_contact_analytics(
+    time_range: str = "7d",
+    db: Session = Depends(get_db)
+):
+    """Get detailed contact analytics"""
+    try:
+        # Calculate date range
+        end_date = datetime.now()
+        if time_range == "7d":
+            start_date = end_date - timedelta(days=7)
+        elif time_range == "30d":
+            start_date = end_date - timedelta(days=30)
+        elif time_range == "90d":
+            start_date = end_date - timedelta(days=90)
+        else:
+            start_date = end_date - timedelta(days=7)
+
+        # Get recent contacts
+        recent_contacts = db.query(Contact).filter(
+            Contact.created_at >= start_date,
+            Contact.created_at <= end_date
+        ).order_by(desc(Contact.created_at)).limit(10).all()
+
+        # Get contact by hour of day
+        hourly_stats = db.query(
+            func.extract('hour', Contact.created_at).label('hour'),
+            func.count(Contact.id).label('count')
+        ).filter(
+            Contact.created_at >= start_date,
+            Contact.created_at <= end_date
+        ).group_by(func.extract('hour', Contact.created_at)).order_by('hour').all()
+
+        return {
+            "recent_contacts": [
+                {
+                    "id": contact.id,
+                    "name": contact.name,
+                    "email": contact.email,
+                    "subject": contact.subject,
+                    "created_at": contact.created_at.isoformat(),
+                    "is_read": getattr(contact, 'is_read', False),
+                    "source": contact.source
+                }
+                for contact in recent_contacts
+            ],
+            "hourly_distribution": [
+                {"hour": int(row.hour), "count": row.count}
+                for row in hourly_stats
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching contact analytics: {str(e)}")
+
+@router.get("/performance")
+async def get_performance_metrics():
+    """Get performance metrics (simulated data for now)"""
+    try:
+        # Simulated performance data
+        return {
+            "page_load_times": {
+                "home": 1.2,
+                "projects": 1.8,
+                "blog": 2.1,
+                "contact": 1.5
+            },
+            "device_distribution": {
+                "desktop": 45,
+                "mobile": 40,
+                "tablet": 15
+            },
+            "browser_distribution": {
+                "chrome": 60,
+                "safari": 25,
+                "firefox": 10,
+                "edge": 5
+            },
+            "geographic_data": [
+                {"country": "United States", "visitors": 1200},
+                {"country": "India", "visitors": 800},
+                {"country": "United Kingdom", "visitors": 450},
+                {"country": "Canada", "visitors": 300},
+                {"country": "Germany", "visitors": 250}
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching performance metrics: {str(e)}") 

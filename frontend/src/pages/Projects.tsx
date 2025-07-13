@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, ExternalLink, Github, Eye } from 'lucide-react';
+import { Search, Filter, Eye, Github } from 'lucide-react';
 
 const Projects: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');

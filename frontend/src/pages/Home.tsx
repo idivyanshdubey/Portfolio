@@ -1,34 +1,9 @@
-import React, { useState } from 'react';
-import { 
-  Brain, 
-  Code, 
-  Database, 
-  BarChart3, 
-  ArrowRight, 
-  Github, 
-  Linkedin, 
-  Mail,
-  Star,
-  TrendingUp,
-  Users,
-  Award,
-  Globe,
-  Server,
-  Layers,
-  X,
-  Download,
-  Briefcase,
-  GraduationCap,
-  Award as AwardIcon,
-  BookOpen,
-  User as UserIcon,
-  Phone,
-  MessageSquare
-} from 'lucide-react';
-import DecryptedText from '../components/DecryptedText';
-import InfiniteScroll from '../components/InfiniteScroll';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, Download, Mail, Github, Linkedin, Award, Clock, Users, Code, Database, Globe, Zap, Shield, Rocket, Star, TrendingUp, CheckCircle, ArrowUpRight, ExternalLink, FileText, MessageSquare, BarChart3, Settings, Palette, Moon, Sun, ChevronDown, ChevronUp, Plus, Minus, X, Search, Filter, Calendar, User, Tag, Share2, Bookmark, Heart, Eye, MousePointer, Download as DownloadIcon, TrendingUp as TrendingUpIcon, Users as UsersIcon, Eye as EyeIcon, Clock as ClockIcon, Globe as GlobeIcon, Smartphone, Mail as MailIcon, BarChart3 as BarChart3Icon, PieChart, Activity, Download as DownloadIcon2, TrendingUp as TrendingUpIcon2, Users as UsersIcon2, Eye as EyeIcon2, MousePointer as MousePointerIcon, Clock as ClockIcon2, BarChart3 as BarChart3Icon2, PieChart as PieChartIcon, Activity as ActivityIcon, GraduationCap, BookOpen, Briefcase, UserIcon, Server, Phone } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ContactForm from '../components/ContactForm';
-import { useEffect } from 'react';
+import InfiniteScroll from '../components/InfiniteScroll';
+import DecryptedText from '../components/DecryptedText';
 
 const timelineIcons = {
   university: GraduationCap,
@@ -138,14 +113,20 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Enhanced Hero Section */}
+      {/* Enhanced Hero Section with Modern Effects */}
       <section className="relative pt-20 pb-16 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="absolute inset-0 bg-hero-pattern opacity-5 dark:opacity-10"></div>
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl float-animation"></div>
+          <div className="absolute top-40 right-10 w-96 h-96 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl float-animation" style={{animationDelay: '1s'}}></div>
+          <div className="absolute bottom-20 left-1/4 w-64 h-64 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl float-animation" style={{animationDelay: '2s'}}></div>
+        </div>
+        
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="mb-8 animate-fade-in">
               <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                <span className="gradient-text">
+                <span className="gradient-text neon-glow">
                   <DecryptedText 
                     text="AI-Powered"
                     speed={100}
@@ -175,28 +156,28 @@ const Home: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6 animate-slide-up animate-stagger-2">
-              <a href="/projects" className="btn-primary inline-flex items-center hover-lift">
+              <a href="/projects" className="btn-modern inline-flex items-center hover-lift pulse-glow">
                 View Projects
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </a>
-              <a href="/demos" className="btn-secondary hover-lift">
+              <a href="/demos" className="btn-secondary hover-lift glass-effect">
                 Try AI Demos
               </a>
             </div>
 
             <div className="flex justify-center space-x-6 items-center mb-8 animate-slide-up animate-stagger-3">
-              <a href="https://github.com/idivyanshdubey" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110 hover:shadow-lg">
+              <a href="https://github.com/idivyanshdubey" target="_blank" rel="noopener noreferrer" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
                 <Github className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               </a>
-              <a href="https://www.linkedin.com/in/divyansh-dubey-48101025d/" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110 hover:shadow-lg">
+              <a href="https://www.linkedin.com/in/divyansh-dubey-48101025d/" target="_blank" rel="noopener noreferrer" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
                 <Linkedin className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               </a>
-              <a href="mailto:divyanshhdubey10@gmail.com" className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110 hover:shadow-lg">
+              <a href="mailto:divyanshhdubey10@gmail.com" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
                 <Mail className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               </a>
               <button
                 onClick={() => setIsResumeOpen(true)}
-                className="ml-4 px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300 hover:shadow-xl focus-ring"
+                className="ml-4 px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300 hover:shadow-xl focus-ring pulse-glow"
               >
                 View Resume
               </button>
@@ -211,13 +192,13 @@ const Home: React.FC = () => {
                   onClick={() => setIsResumeOpen(false)}
                 ></div>
                 {/* Enhanced Modal Card with Glassmorphism */}
-                <div className="relative w-full max-w-4xl mx-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 flex flex-col md:flex-row overflow-hidden animate-scale-in">
+                <div className="relative w-full max-w-4xl mx-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 flex flex-col md:flex-row overflow-hidden animate-scale-in" style={{ maxHeight: '90vh' }}>
                   {/* Enhanced Resume Image */}
                   <div className="md:w-1/2 w-full flex items-center justify-center bg-gradient-to-br from-cyan-100/40 to-blue-100/40 dark:from-cyan-900/40 dark:to-blue-900/40 p-4">
                     <img 
                       src="/resume.jpg" 
                       alt="Divyansh Dubey Resume" 
-                      className="rounded-xl shadow-lg max-h-[70vh] object-contain border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform duration-300"
+                      className="rounded-xl shadow-lg max-h-[85vh] object-contain border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   {/* Enhanced Intro and Download */}
