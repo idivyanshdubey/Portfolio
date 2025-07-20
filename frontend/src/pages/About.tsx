@@ -15,9 +15,12 @@ const getTimelineIcon = (event: string) => {
 // Check and verify these paths against your public folder structure
 const CERTIFICATIONS_DATA = [
   { name: 'Oracle Certified Java SE 11', image: '/certifications/oracle_certificate.jpeg' },
+  { name: 'Microsoft Azure AI Essentials', image: '/certifications/Azure.jpg' },
   { name: 'TCS iON Career Edge', image: '/certifications/TCS.jpg' },
   { name: 'Generative AI Specialization', image: '/certifications/Gen.jpg' },
+  { name: 'Mastering Data Analysis with Pandas', image: '/certifications/data-analysis.png' },
   { name: 'Udemy Bootcamp', image: '/certifications/udemy.png' },
+  { name: 'Streamlit with Python', image: '/certifications/Streamlit.png' },
   { name: 'SQL Subqueries', image: '/certifications/Subqueries.png' },
 ];
 
@@ -37,6 +40,9 @@ const TECH_STACK_DATA = [
   { name: 'Apache Kafka', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apachekafka/apachekafka-original.svg' },
   { name: 'ActiveMQ', icon: '/tech/ActiveMq.png' },
   { name: 'Apache Spark', icon: '/tech/ApacheSpark.png' },
+  { name: 'Node.js', icon: 'https://www.vectorlogo.zone/logos/nodejs/nodejs-ar21~bgwhite.svg' },
+  { name: 'FastAPI', icon: '/tech/FastAPI.png' },
+  { name: 'Microsoft Azure', icon: '/tech/Azure.jpg' },
 ];
 
 // Define a type for timeline items
@@ -121,7 +127,7 @@ const CertModal: React.FC<CertModalProps> = ({ selectedCert, closeCertModal }) =
             </div>
           ) : (
             <img
-              src={selectedCert.image}
+              src={`${selectedCert.image}?${selectedCert.name.replace(/\s/g, '')}${Date.now()}`}
               alt={`Certificate for ${selectedCert.name}`}
               className="w-full object-contain rounded-lg mx-auto"
               style={{ display: 'block' }}
@@ -156,6 +162,7 @@ const About: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [timelineError, setTimelineError] = useState(false);
   const [selectedCert, setSelectedCert] = useState<null | { name: string; image: string }>(null);
+  const [isPhotoOpen, setIsPhotoOpen] = useState(false);
 
   const openCertModal = useCallback((cert: { name: string; image: string }) => {
     setSelectedCert(cert);
@@ -193,6 +200,58 @@ const About: React.FC = () => {
   return (
     <div className="min-h-screen py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Modern Photo Section */}
+        <div className="flex justify-center mb-10">
+          <div className="relative group">
+            <img
+              src={`/about-photo.jpg?${isPhotoOpen ? Date.now() : ''}`}
+              alt="Divyansh Dubey"
+              className="w-48 h-48 md:w-64 md:h-64 object-cover object-center rounded-2xl shadow-xl border-4 border-white dark:border-gray-800 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-2xl cursor-pointer brightness-105"
+              onClick={() => setIsPhotoOpen(true)}
+              tabIndex={0}
+              style={{ background: 'none' }}
+            />
+          </div>
+        </div>
+        {/* Animation styles for modal */}
+        <style>{`
+          @keyframes scaleFadeIn {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+          }
+          .animate-scale-fade-in {
+            animation: scaleFadeIn 0.4s cubic-bezier(0.4,0,0.2,1);
+          }
+        `}</style>
+        {/* Photo Modal/Lightbox */}
+        {isPhotoOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-scale-fade-in"
+            tabIndex={-1}
+            onKeyDown={e => { if (e.key === 'Escape') setIsPhotoOpen(false); }}
+          >
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
+              onClick={() => setIsPhotoOpen(false)}
+              aria-hidden="true"
+            ></div>
+            <div className="relative z-10 max-w-2xl w-full flex flex-col items-center">
+              <img
+                src={`/about-photo.jpg?${isPhotoOpen ? Date.now() : ''}`}
+                alt="Divyansh Dubey Large"
+                className="w-full max-w-xl max-h-[80vh] object-cover object-center rounded-2xl shadow-2xl border-4 border-white dark:border-gray-800 brightness-105"
+                style={{ background: 'none' }}
+              />
+              <button
+                onClick={() => setIsPhotoOpen(false)}
+                className="mt-4 px-6 py-2 bg-primary-600 dark:bg-cyan-600 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-cyan-700 transition-colors shadow-lg"
+                aria-label="Close photo"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
         {/* Bio Section with scroll-triggered fade-in */}
         <section
           ref={bioRef}
