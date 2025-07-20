@@ -12,6 +12,7 @@ import Demos from './pages/Demos';
 import Blog from './pages/Blog';
 import Analytics from './pages/Analytics';
 import Chatbot from './pages/Chatbot';
+import About from './pages/About';
 import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
 
@@ -82,10 +83,10 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -40, scale: 0.98 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Home />
@@ -93,10 +94,10 @@ function AnimatedRoutes() {
         } />
         <Route path="/projects" element={
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -40, scale: 0.98 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Projects />
@@ -104,10 +105,10 @@ function AnimatedRoutes() {
         } />
         <Route path="/demos" element={
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -40, scale: 0.98 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Demos />
@@ -115,10 +116,10 @@ function AnimatedRoutes() {
         } />
         <Route path="/blog" element={
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -40, scale: 0.98 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Blog />
@@ -126,10 +127,10 @@ function AnimatedRoutes() {
         } />
         <Route path="/analytics" element={
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -40, scale: 0.98 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Analytics />
@@ -137,13 +138,24 @@ function AnimatedRoutes() {
         } />
         <Route path="/chatbot" element={
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -40, scale: 0.98 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Chatbot />
+          </motion.div>
+        } />
+        <Route path="/about" element={
+          <motion.div
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -40, scale: 0.98 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            className="fade-in-up"
+          >
+            <About />
           </motion.div>
         } />
       </Routes>

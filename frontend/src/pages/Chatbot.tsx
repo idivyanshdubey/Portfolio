@@ -30,7 +30,11 @@ const Chatbot: React.FC = () => {
     "Show me your machine learning demos",
     "How can I contact you?",
     "What's your experience with Python?",
-    "Tell me about your data science work"
+    "Tell me about your data science work",
+    "Explain machine learning concepts",
+    "Help me with web development",
+    "What are your career goals?",
+    "Share learning resources"
   ];
 
   const scrollToBottom = () => {
@@ -89,15 +93,17 @@ const Chatbot: React.FC = () => {
     } catch (error) {
       console.error('Chat error:', error);
       console.log('Failed to send message. Please try again.');
-      
-      const errorMessage: Message = {
+      const lowerText = text.trim().toLowerCase();
+      const fallback = fallbackAnswers[lowerText];
+      const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
+        text: fallback
+          ? fallback
+          : "I'm sorry, I don't have an answer for that right now, but you can ask about my projects, skills, or AI demos!",
         sender: 'bot',
         timestamp: new Date()
       };
-      
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, botMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -117,6 +123,30 @@ const Chatbot: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  // Fallback answers for common questions if backend is down
+  const fallbackAnswers: { [key: string]: string } = {
+    "hi": "Hello! How can I assist you today?",
+    "hello": "Hi there! How can I help you?",
+    "hey": "Hey! What would you like to know about my projects or skills?",
+    "good morning": "Good morning! How can I assist you today?",
+    "good afternoon": "Good afternoon! How can I help you?",
+    "good evening": "Good evening! What would you like to discuss?",
+    "who are you?": "I'm Jarvis, your AI assistant. Ask me about my projects, skills, or anything related to AI and data science!",
+    "who are you": "I'm Jarvis, your AI assistant. Ask me about my projects, skills, or anything related to AI and data science!",
+    "what can you do?": "I can answer questions about my portfolio, skills, projects, and more. Try asking about my AI projects or tech stack!",
+    "what can you do": "I can answer questions about my portfolio, skills, projects, and more. Try asking about my AI projects or tech stack!",
+    "tell me about your ai projects": "I have built several AI projects including chatbots, recommendation systems, and machine learning demos. Check out my Projects page for more details!",
+    "what technologies do you use?": "I use Java, Python, React, TypeScript, Spring Boot, Docker, and more. My tech stack is full-stack and cloud-ready.",
+    "show me your machine learning demos": "You can try my interactive AI demos on the Demos page!",
+    "how can i contact you?": "You can contact me via the Contact page or email me at divyanshhdubey10@gmail.com.",
+    "what's your experience with python?": "I have extensive experience with Python for data science, machine learning, and backend development.",
+    "tell me about your data science work": "I have worked on data analysis, visualization, and predictive modeling projects using Python, Pandas, and scikit-learn.",
+    "explain machine learning concepts": "Machine learning is about teaching computers to learn from data. I can explain concepts like supervised learning, regression, classification, and more.",
+    "help me with web development": "I can help you with React, Angular, Node.js, and modern web development best practices.",
+    "what are your career goals?": "My goal is to build intelligent, scalable solutions that make a positive impact.",
+    "share learning resources": "Some great resources: Coursera, freeCodeCamp, Kaggle, and official docs for Python, React, and more."
   };
 
   return (
@@ -159,23 +189,29 @@ const Chatbot: React.FC = () => {
                   <div className={`rounded-lg px-4 py-3 ${
                     message.sender === 'user'
                       ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-900'
+                      : 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-200'
                   }`}>
                     <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
                       <ReactMarkdown
                         components={{
-                          h1: ({children}) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
-                          h2: ({children}) => <h2 className="text-base font-bold mb-2">{children}</h2>,
-                          h3: ({children}) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
-                          p: ({children}) => <p className="mb-2">{children}</p>,
-                          ul: ({children}) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
-                          ol: ({children}) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-                          li: ({children}) => <li className="text-sm">{children}</li>,
-                          strong: ({children}) => <strong className="font-semibold">{children}</strong>,
-                          em: ({children}) => <em className="italic">{children}</em>,
-                          code: ({children}) => <code className="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded text-xs">{children}</code>,
-                          pre: ({children}) => <pre className="bg-gray-200 dark:bg-gray-700 p-2 rounded text-xs overflow-x-auto mb-2">{children}</pre>,
-                          hr: () => <hr className="my-3 border-gray-300 dark:border-gray-600" />
+                          h1: ({children}) => <h1 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-lg font-bold mb-2 text-gray-800 dark:text-gray-100">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-base font-semibold mb-2 text-gray-700 dark:text-gray-200">{children}</h3>,
+                          p: ({children}) => <p className="mb-3 text-gray-700 dark:text-gray-300 leading-relaxed">{children}</p>,
+                          ul: ({children}) => <ul className="list-disc list-inside mb-3 space-y-1 text-gray-700 dark:text-gray-300">{children}</ul>,
+                          ol: ({children}) => <ol className="list-decimal list-inside mb-3 space-y-1 text-gray-700 dark:text-gray-300">{children}</ol>,
+                          li: ({children}) => <li className="text-sm leading-relaxed">{children}</li>,
+                          strong: ({children}) => <strong className="font-semibold text-gray-900 dark:text-white">{children}</strong>,
+                          em: ({children}) => <em className="italic text-gray-800 dark:text-gray-200">{children}</em>,
+                          code: ({children}) => <code className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-xs font-mono text-gray-800 dark:text-gray-200">{children}</code>,
+                          pre: ({children}) => <pre className="bg-gray-200 dark:bg-gray-700 p-3 rounded text-xs overflow-x-auto mb-3 font-mono text-gray-800 dark:text-gray-200">{children}</pre>,
+                          hr: () => <hr className="my-4 border-gray-300 dark:border-gray-600" />,
+                          blockquote: ({children}) => <blockquote className="border-l-4 border-primary-500 pl-4 italic text-gray-600 dark:text-gray-400 mb-3">{children}</blockquote>,
+                          a: ({href, children}) => <a href={href} className="text-primary-600 dark:text-primary-400 hover:underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+                          table: ({children}) => <div className="overflow-x-auto mb-3"><table className="min-w-full border border-gray-300 dark:border-gray-600">{children}</table></div>,
+                          th: ({children}) => <th className="border border-gray-300 dark:border-gray-600 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-left font-semibold">{children}</th>,
+                          td: ({children}) => <td className="border border-gray-300 dark:border-gray-600 px-3 py-2">{children}</td>,
+                          tr: ({children}) => <tr className="hover:bg-gray-50 dark:hover:bg-gray-800">{children}</tr>
                         }}
                       >
                         {message.text}
@@ -196,10 +232,14 @@ const Chatbot: React.FC = () => {
                   <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-accent-600 rounded-full flex items-center justify-center">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
-                  <div className="bg-gray-100 rounded-lg px-4 py-3">
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-3">
                     <div className="flex items-center space-x-2">
-                      <Loader className="w-4 h-4 animate-spin text-gray-500" />
-                      <span className="text-sm text-gray-600">AI is thinking...</span>
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                      <span className="text-sm text-gray-600 dark:text-gray-300">Jarvis is thinking...</span>
                     </div>
                   </div>
                 </div>

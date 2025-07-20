@@ -1,0 +1,299 @@
+import React, { useState, useEffect, useCallback, memo } from 'react';
+import { useInView } from '../utils/useInView';
+import { Award, GraduationCap, Star, BookOpen, Briefcase, UserIcon, X, AlertTriangle, Download } from 'lucide-react';
+
+// --- Data and Constants for Better Organization ---
+const getTimelineIcon = (event: string) => {
+  if (event.includes('B.Tech') || event.includes('Graduated')) return GraduationCap;
+  if (event.includes('Sports') || event.includes('Olympiad')) return Star;
+  if (event.includes('project') || event.includes('research')) return BookOpen;
+  if (event.includes('Interned') || event.includes('Analyst') || event.includes('Software Engineer')) return Briefcase;
+  if (event.includes('Oracle Certified')) return Award;
+  return UserIcon;
+};
+
+// Check and verify these paths against your public folder structure
+const CERTIFICATIONS_DATA = [
+  { name: 'Oracle Certified Java SE 11', image: '/certifications/oracle_certificate.jpeg' },
+  { name: 'TCS iON Career Edge', image: '/certifications/TCS.jpg' },
+  { name: 'Generative AI Specialization', image: '/certifications/Gen.jpg' },
+  { name: 'Udemy Bootcamp', image: '/certifications/udemy.png' },
+  { name: 'SQL Subqueries', image: '/certifications/Subqueries.png' },
+];
+
+const TECH_STACK_DATA = [
+  { name: 'Java', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg' },
+  { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+  { name: 'React', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg' },
+  { name: 'TypeScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg' },
+  { name: 'Spring Boot', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg' },
+  { name: 'Docker', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg' },
+  { name: 'PostgreSQL', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg' },
+  { name: 'JavaScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg' },
+  { name: 'HTML5', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg' },
+  { name: 'CSS3', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg' },
+  { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
+  { name: 'Git', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
+  { name: 'Apache Kafka', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apachekafka/apachekafka-original.svg' },
+  { name: 'ActiveMQ', icon: '/tech/ActiveMq.png' },
+  { name: 'Apache Spark', icon: '/tech/ApacheSpark.png' },
+];
+
+// Define a type for timeline items
+interface TimelineItem {
+  year: number;
+  event: string;
+}
+
+interface TechIconProps {
+  tech: { name: string; icon: string };
+  style?: React.CSSProperties;
+}
+
+const TechIcon: React.FC<TechIconProps> = memo(({ tech, style }) => (
+  <div className="flex flex-col items-center p-2 group" style={style}>
+    <img
+      src={tech.icon}
+      alt={tech.name}
+      className="w-16 h-16 object-contain rounded-lg shadow-sm mb-2 transition-transform duration-300 group-hover:scale-110 group-hover:shadow-lg"
+      loading="lazy"
+    />
+    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center transition-colors duration-300 group-hover:text-cyan-500">
+      {tech.name}
+    </span>
+  </div>
+));
+
+interface CertModalProps {
+  selectedCert: { name: string; image: string } | null;
+  closeCertModal: () => void;
+}
+
+const CertModal: React.FC<CertModalProps> = ({ selectedCert, closeCertModal }) => {
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (selectedCert) {
+      const img = new Image();
+      img.onload = () => setImageError(false);
+      img.onerror = () => setImageError(true);
+      img.src = selectedCert.image;
+    }
+  }, [selectedCert]);
+
+  if (!selectedCert) return null;
+
+  const getDownloadFilename = (name: string) => {
+    const fileExtension = selectedCert.image.split('.').pop();
+    const sanitizedName = name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+    return `Divyansh_Dubey_${sanitizedName}.${fileExtension}`;
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" aria-labelledby="cert-modal-title" role="dialog" aria-modal="true">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ease-out animate-backdrop-fade-in"
+        onClick={closeCertModal}
+        aria-hidden="true"
+      ></div>
+
+      {/* Modal Card */}
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 animate-scale-in">
+        {/* Modal Header */}
+        <div className="sticky top-0 p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-t-2xl flex justify-between items-center z-10">
+          <h2 id="cert-modal-title" className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-0 text-center w-full">{selectedCert.name}</h2>
+          <button
+            onClick={closeCertModal}
+            className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors absolute top-2 right-2"
+            aria-label="Close"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Modal Content */}
+        <div className="p-6 flex items-center justify-center">
+          {imageError ? (
+            <div className="flex flex-col items-center justify-center w-full min-h-[300px] text-center text-gray-500 dark:text-gray-400">
+              <AlertTriangle className="w-12 h-12 mb-4 text-red-500" />
+              <p>Image not found. Please check the file path.</p>
+            </div>
+          ) : (
+            <img
+              src={selectedCert.image}
+              alt={`Certificate for ${selectedCert.name}`}
+              className="w-full object-contain rounded-lg mx-auto"
+              style={{ display: 'block' }}
+              loading="eager"
+            />
+          )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="sticky bottom-0 p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-b-2xl flex justify-end gap-4">
+          <a
+            href={selectedCert.image}
+            download={getDownloadFilename(selectedCert.name)}
+            className="inline-flex items-center px-6 py-2 bg-blue-600 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors"
+          >
+            <Download className="w-5 h-5 mr-2" /> Download
+          </a>
+          <button
+            onClick={closeCertModal}
+            className="px-6 py-2 bg-primary-600 dark:bg-cyan-600 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-cyan-700 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const About: React.FC = () => {
+  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [timelineError, setTimelineError] = useState(false);
+  const [selectedCert, setSelectedCert] = useState<null | { name: string; image: string }>(null);
+
+  const openCertModal = useCallback((cert: { name: string; image: string }) => {
+    setSelectedCert(cert);
+  }, []);
+
+  const closeCertModal = useCallback(() => {
+    setSelectedCert(null);
+  }, []);
+
+  useEffect(() => {
+    const fetchTimeline = async () => {
+      try {
+        const res = await fetch('/data/career_timeline.json');
+        if (!res.ok) {
+          throw new Error('Timeline data not found.');
+        }
+        const data: TimelineItem[] = await res.json();
+        const sortedData = data.sort((a, b) => a.year - b.year);
+        setTimeline(sortedData);
+      } catch (error) {
+        console.error('Failed to fetch timeline data:', error);
+        setTimelineError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTimeline();
+  }, []);
+
+  // Section fade-in hooks
+  const [bioRef, bioInView] = useInView();
+  const [certRef, certInView] = useInView();
+  const [techRef, techInView] = useInView();
+
+  return (
+    <div className="min-h-screen py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Bio Section with scroll-triggered fade-in */}
+        <section
+          ref={bioRef}
+          className={`mb-16 text-center transition-all duration-700 ease-out ${bioInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
+          <h1 className="text-5xl font-bold mb-4 gradient-text neon-glow">About Me</h1>
+          <p className="text-xl text-gray-700 dark:text-gray-300 mb-4">
+            Hi, I'm Divyansh Dubey, a passionate <strong>Full Stack Developer</strong>.I am currently a Software Engineer at <strong>LTIMindtree</strong>, where I build robust, scalable web applications using a mix of modern technologies. My work involves creating full-stack solutions and optimizing application performance with a strong focus on data security and integrity.
+          </p>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+          I am always eager to leverage new technologies and innovative algorithms, transforming data into intelligent insights and building the future, one solution at a time.
+          </p>
+        </section>
+        {/* --- Career Timeline Section --- */}
+        <section className="mb-16 animate-fade-in-up">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">Career Timeline</h2>
+          {loading ? (
+            <div className="flex justify-center items-center h-48 text-gray-500 dark:text-gray-400">
+              <svg className="animate-spin h-8 w-8 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span className="ml-3">Loading timeline...</span>
+            </div>
+          ) : timelineError ? (
+            <div className="text-center text-red-500 dark:text-red-400 text-lg py-8">
+              Timeline data could not be loaded. Please check the file path.
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="border-l-4 border-cyan-500 dark:border-cyan-400 absolute h-full left-6 top-0"></div>
+              <ul className="space-y-12">
+                {timeline.map((item: TimelineItem, idx) => {
+                  const Icon = getTimelineIcon(item.event);
+                  return (
+                    <li key={idx} className="relative flex items-start group animate-fade-in-up" style={{ animationDelay: `${0.1 + idx * 0.2}s` }}>
+                      <span className="absolute -left-2.5 flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-lg group-hover:scale-110 transition-transform ring-4 ring-white dark:ring-gray-900">
+                        <Icon className="w-7 h-7" aria-hidden="true" />
+                      </span>
+                      <div className="ml-16 w-full">
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{item.year}</span>
+                          <span className="text-xs px-2 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 rounded-full shadow">Milestone</span>
+                        </div>
+                        <div className="mt-2 bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-5 border border-cyan-100 dark:border-cyan-900 transition-all duration-300 group-hover:shadow-2xl">
+                          <p className="text-gray-700 dark:text-gray-300 text-base">
+                            {item.event}
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </section>
+        {/* --- Certifications Section with scroll-triggered fade-in --- */}
+        <section
+          ref={certRef}
+          className={`mb-16 transition-all duration-700 ease-out ${certInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">Certifications</h2>
+          <div className="flex flex-wrap justify-center gap-8">
+            {CERTIFICATIONS_DATA.map((cert) => (
+              <button
+                key={cert.name}
+                className="flex flex-col items-center focus:outline-none group"
+                onClick={() => openCertModal(cert)}
+                tabIndex={0}
+                aria-label={`View certificate: ${cert.name}`}
+              >
+                <img
+                  src={cert.image}
+                  alt={`Certificate for ${cert.name}`}
+                  className="w-24 h-24 object-contain rounded-lg shadow-md mb-2 group-hover:scale-105 group-hover:shadow-lg transition-transform duration-300"
+                  loading="lazy"
+                />
+                <span className="text-base font-medium text-gray-800 dark:text-gray-200 text-center group-hover:text-cyan-500 transition-colors duration-300">{cert.name}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+        {/* --- Tech Stack Section with scroll-triggered fade-in --- */}
+        <section
+          ref={techRef}
+          className={`mb-16 transition-all duration-700 ease-out ${techInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        >
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">Tech Stack</h2>
+          <div className="flex flex-wrap justify-center gap-8">
+            {TECH_STACK_DATA.map((tech) => (
+              <TechIcon key={tech.name} tech={tech} />
+            ))}
+          </div>
+        </section>
+      </div>
+      {/* Move CertModal here so it overlays the entire page and is not overlapped by any section */}
+      <CertModal selectedCert={selectedCert} closeCertModal={closeCertModal} />
+      {/* No custom animation CSS needed for scroll-triggered fade-in */}
+    </div>
+  );
+};
+
+export default About;

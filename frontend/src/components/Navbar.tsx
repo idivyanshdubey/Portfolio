@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Code, Brain, BarChart3, MessageSquare, Home, FolderOpen, FileText } from 'lucide-react';
+import { Menu, X, Code, Brain, BarChart3, MessageSquare, Home, FolderOpen, FileText, UserIcon } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 const Navbar: React.FC = () => {
@@ -20,6 +20,7 @@ const Navbar: React.FC = () => {
 
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
+    { path: '/about', label: 'About', icon: UserIcon },
     { path: '/projects', label: 'Projects', icon: FolderOpen },
     { path: '/demos', label: 'AI Demos', icon: Brain },
     { path: '/blog', label: 'Blog', icon: FileText },

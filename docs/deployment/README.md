@@ -247,21 +247,4 @@ Update the server_name and proxy_pass URLs for your domain.
 The project includes GitHub Actions workflow (`.github/workflows/deploy.yml`) that:
 - Runs tests on every push
 - Builds Docker images
-- Deploys to production (configure your platform)
-
-### Customizing CI/CD
-1. Update deployment platform in workflow
-2. Add environment variables to GitHub Secrets
-3. Configure deployment scripts for your platform
-
-## 📞 Support
-
-For deployment issues:
-1. Check the logs: `docker-compose logs`
-2. Run the test script: `./scripts/test-deployment.sh`
-3. Verify environment variables
-4. Test locally before deploying
-
----
-
-**Remember**: Always test in a staging environment before deploying to production! 
+- Deploys to production (configure your platform) 
