@@ -44,7 +44,8 @@ const TECH_STACK_DATA = [
   { name: 'ActiveMQ', icon: '/tech/ActiveMq.png' },
   { name: 'Apache Spark', icon: '/tech/ApacheSpark.png' },
   { name: 'Node.js', icon: 'https://www.vectorlogo.zone/logos/nodejs/nodejs-ar21~bgwhite.svg' },
-  { name: 'FastAPI', icon: '/tech/FastAPI.png' },
+  { name: 'FastAPI', icon: '/tech/FastAPI.png' }, 
+  {name: 'Postman', icon: '/tech/Postman.png' },
   { name: 'Microsoft Azure', icon: '/tech/Azure.jpg' },
 ];
 

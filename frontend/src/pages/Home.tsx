@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import {
   ArrowRight, Download, Mail, Github, Linkedin, Award, Star, TrendingUp, Users,
   Code, Globe, Server, BarChart3, GraduationCap, BookOpen, Briefcase, UserIcon,
-  MessageSquare, Phone, X, ExternalLink
+  MessageSquare, Phone, X, 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ContactForm from '../components/ContactForm';
 import Carousel3D, { Carousel3DItem } from '../components/Carousel3D';
 import DecryptedText from '../components/DecryptedText';
-import { ScrollTimeline } from '../components/ScrollTimeline';
+
 
 // --- Icon and Data Mapping for Maintainability ---
 // This centralizes icon selection logic and data, making it easier to manage.
@@ -141,6 +141,7 @@ const Home: React.FC = () => {
       <div
         className="relative w-full max-w-4xl mx-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 flex flex-col md:flex-row overflow-hidden animate-scale-in"
         style={{ maxHeight: '90vh' }}
+        id="resume-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="resume-modal-title"
@@ -179,6 +180,7 @@ const Home: React.FC = () => {
               <Download className="w-5 h-5 mr-2" /> Download as PDF
             </a>
             <button
+              type="button"
               onClick={() => setIsResumeOpen(false)}
               className="ml-auto p-2 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-all duration-300 hover:scale-110 focus-ring"
               aria-label="Close Resume Modal"
@@ -246,20 +248,22 @@ const Home: React.FC = () => {
           </div>
 
           <div className="flex justify-center space-x-6 items-center mb-8 animate-slide-up animate-stagger-3">
-            <a href="https://github.com/idivyanshdubey" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
+            <a href="https://github.com/idivyanshdubey" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile (opens in a new tab)" title="GitHub Profile" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
               <Github className="w-6 h-6 text-gray-700 dark:text-gray-300" />
             </a>
-            <a href="https://www.linkedin.com/in/divyansh-dubey-48101025d/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
+            <a href="https://www.linkedin.com/in/divyansh-dubey-48101025d/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile (opens in a new tab)" title="LinkedIn Profile" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
               <Linkedin className="w-6 h-6 text-gray-700 dark:text-gray-300" />
             </a>
-            <a href="mailto:divyanshhdubey10@gmail.com" aria-label="Email Me" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
+            <a href="mailto:divyanshhdubey10@gmail.com" aria-label="Email Me" title="Email Me" className="p-3 glass-effect rounded-xl hover:scale-110 hover:shadow-lg transition-all duration-300 card-hover">
               <Mail className="w-6 h-6 text-gray-700 dark:text-gray-300" />
             </a>
             <button
+              type="button"
               onClick={() => setIsResumeOpen(true)}
               className="ml-4 px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300 hover:shadow-xl focus-ring pulse-glow"
               aria-expanded={isResumeOpen}
               aria-controls="resume-modal"
+              aria-haspopup="dialog"
             >
               View Resume
             </button>

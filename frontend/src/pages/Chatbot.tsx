@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader, Sparkles, MessageSquare } from 'lucide-react';
+import { Send, Bot, User, Sparkles, MessageSquare } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import GlitchText from '../components/GlitchText';
 import '../components/GlitchText.css';
@@ -280,6 +280,7 @@ const Chatbot: React.FC = () => {
                   type="submit"
                   disabled={isLoading || !inputText.trim()}
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-primary-600 hover:text-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Send message"
                 >
                   <Send className="w-5 h-5" />
                 </button>

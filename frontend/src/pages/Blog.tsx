@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, Tag, Search, Filter, X, Share2, Bookmark, ArrowRight, ExternalLink, MessageSquare, Heart } from 'lucide-react';
+import { Calendar, Clock, User, Search, Filter, X, Share2, Bookmark, } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -5931,6 +5931,7 @@ The key to successful deployment is choosing the right approach for your specifi
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
+                aria-label="Search articles"
                 placeholder="Search articles..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -5940,6 +5941,7 @@ The key to successful deployment is choosing the right approach for your specifi
             <div className="flex items-center space-x-2">
               <Filter className="text-gray-400 w-5 h-5" />
               <select
+                aria-label="Filter by category"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
@@ -5996,11 +5998,13 @@ The key to successful deployment is choosing the right approach for your specifi
                   ))}
                 </div>
                 <button 
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     openModal(post);
                   }}
                   className="text-primary-600 dark:text-cyan-400 hover:text-primary-700 dark:hover:text-cyan-300 font-medium transition-colors"
+                  aria-haspopup="dialog"
                 >
                   Read More →
                 </button>
@@ -6019,7 +6023,11 @@ The key to successful deployment is choosing the right approach for your specifi
 
       {/* Modal */}
       {isModalOpen && selectedPost && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="blog-modal-title"
+        >
           {/* Backdrop with blur effect */}
           <div 
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -6058,18 +6066,29 @@ The key to successful deployment is choosing the right approach for your specifi
                   </div>
                 </div>
                 <div className="flex items-center space-x-2 ml-4">
-                  <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                  <button
+                    type="button"
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                    title="Bookmark"
+                  >
                     <Bookmark className="w-5 h-5" />
                   </button>
-                  <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+                  <button 
+                    type="button"
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                    title="Share"
+                  >
                     <Share2 className="w-5 h-5" />
                   </button>
-                  <button 
+                    <button 
+                    type="button"
                     onClick={closeModal}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-                  >
+                    title="Close"
+                    aria-label="Close"
+                    >
                     <X className="w-5 h-5" />
-                  </button>
+                    </button>
                 </div>
               </div>
             </div>
@@ -6112,6 +6131,7 @@ The key to successful deployment is choosing the right approach for your specifi
                   Published on {formatDate(selectedPost.date)}
                 </div>
                 <button 
+                  type="button"
                   onClick={closeModal}
                   className="px-6 py-2 bg-primary-600 dark:bg-cyan-600 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-cyan-700 transition-colors"
                 >
