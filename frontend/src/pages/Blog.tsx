@@ -5920,7 +5920,7 @@ The key to successful deployment is choosing the right approach for your specifi
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">Blog & Insights</h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Exploring the latest trends in AI, machine learning, and data science. 
-            Sharing knowledge and insights from the field.
+            Sharing my knowledge and insights through these blog posts.
           </p>
         </div>
 

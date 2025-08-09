@@ -1,37 +1,39 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 import uvicorn
-from pathlib import Path
-import os
 import logging
+import sys
+from pathlib import Path
+
+# Ensure backend is in sys.path so imports work on Railway
+BASE_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = BASE_DIR / "backend"
+if BACKEND_DIR.exists() and str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Import routers
-from fastapi import APIRouter
-
-# Create routers
+# Create fallback/dummy routers
 projects = APIRouter()
 demos = APIRouter()
 blog = APIRouter()
 analytics = APIRouter()
 chatbot = APIRouter()
 contact = APIRouter()
+verification = APIRouter()  # ✅ always defined
 
-# Try to import actual route modules
+# Try to import actual route modules from backend/api/routes
 try:
-    import api.routes.projects as projects_module
-    import api.routes.demos as demos_module
-    import api.routes.blog as blog_module
-    import api.routes.analytics as analytics_module
-    import api.routes.chatbot as chatbot_module
-    import api.routes.contact as contact_module
-    import api.routes.verification as verification_module
+    import backend.api.routes.projects as projects_module
+    import backend.api.routes.demos as demos_module
+    import backend.api.routes.blog as blog_module
+    import backend.api.routes.analytics as analytics_module
+    import backend.api.routes.chatbot as chatbot_module
+    import backend.api.routes.contact as contact_module
+    import backend.api.routes.verification as verification_module
     
-    # Use the actual routers if import successful
     projects = projects_module.router
     demos = demos_module.router
     blog = blog_module.router
@@ -40,14 +42,10 @@ try:
     contact = contact_module.router
     verification = verification_module.router
     print("✓ All route modules imported successfully")
-    print(f"✓ Contact router: {contact}")
-    print(f"✓ Verification router: {verification}")
-    
 except ImportError as e:
     print(f"Warning: Could not import some routes: {e}")
     print("Using basic routers with sample endpoints")
     
-    # Add basic endpoints to dummy routers
     @projects.get("/")
     async def get_projects():
         return {"projects": []}
@@ -71,6 +69,10 @@ except ImportError as e:
     @contact.post("/submit")
     async def submit_contact():
         return {"success": True, "message": "Contact form submitted successfully!"}
+    
+    @verification.get("/")
+    async def verify_fallback():
+        return {"verification": "not implemented yet"}
 
 # Create FastAPI app
 app = FastAPI(
@@ -84,7 +86,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # React dev server
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -97,23 +99,23 @@ app.include_router(blog, prefix="/api/blog", tags=["blog"])
 app.include_router(analytics, prefix="/api/analytics", tags=["analytics"])
 app.include_router(chatbot, prefix="/api/chatbot", tags=["chatbot"])
 app.include_router(contact, prefix="/api/contact", tags=["contact"])
-app.include_router(verification, prefix="/api/verify", tags=["verification"])
+app.include_router(verification, prefix="/api/verify", tags=["verification"])  # ✅ safe now
 
 # Health check endpoint
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "message": "AI Portfolio API is running!"}
 
-# Debug endpoint to check router status
+# Debug endpoint
 @app.get("/api/debug/routers")
 async def debug_routers():
     return {
         "contact_router": str(contact),
-        "contact_routes": [str(route) for route in contact.routes] if hasattr(contact, 'routes') else [],
+        "verification_router": str(verification),
         "app_routes": [str(route) for route in app.routes]
     }
 
-# Database health check endpoint
+# DB health check
 @app.get("/api/health/db")
 async def database_health_check():
     try:
@@ -139,7 +141,6 @@ async def root():
 # Startup event
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database on startup"""
     try:
         from database import init_db, test_connection
         logger.info("Testing database connection...")
@@ -154,10 +155,4 @@ async def startup_event():
         logger.error(f"Database initialization failed: {e}")
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    ) 
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
