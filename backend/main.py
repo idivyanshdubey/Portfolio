@@ -29,6 +29,7 @@ try:
     import api.routes.analytics as analytics_module
     import api.routes.chatbot as chatbot_module
     import api.routes.contact as contact_module
+    import api.routes.verification as verification_module
     
     # Use the actual routers if import successful
     projects = projects_module.router
@@ -37,8 +38,10 @@ try:
     analytics = analytics_module.router
     chatbot = chatbot_module.router
     contact = contact_module.router
+    verification = verification_module.router
     print("✓ All route modules imported successfully")
     print(f"✓ Contact router: {contact}")
+    print(f"✓ Verification router: {verification}")
     
 except ImportError as e:
     print(f"Warning: Could not import some routes: {e}")
@@ -94,6 +97,7 @@ app.include_router(blog, prefix="/api/blog", tags=["blog"])
 app.include_router(analytics, prefix="/api/analytics", tags=["analytics"])
 app.include_router(chatbot, prefix="/api/chatbot", tags=["chatbot"])
 app.include_router(contact, prefix="/api/contact", tags=["contact"])
+app.include_router(verification, prefix="/api/verify", tags=["verification"])
 
 # Health check endpoint
 @app.get("/api/health")

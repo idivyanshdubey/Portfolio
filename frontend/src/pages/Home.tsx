@@ -6,8 +6,9 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ContactForm from '../components/ContactForm';
-import InfiniteScroll from '../components/InfiniteScroll';
+import Carousel3D, { Carousel3DItem } from '../components/Carousel3D';
 import DecryptedText from '../components/DecryptedText';
+import { ScrollTimeline } from '../components/ScrollTimeline';
 
 // --- Icon and Data Mapping for Maintainability ---
 // This centralizes icon selection logic and data, making it easier to manage.
@@ -64,29 +65,35 @@ const SKILLS_DATA = [
 const STATS_DATA = [
   { icon: Star, label: 'Projects Completed', value: '10+' },
   { icon: TrendingUp, label: 'Years Experience', value: '1+' },
-  { icon: Users, label: 'Happy Clients', value: '2+' },
+  { icon: Users, label: 'Happy Clients', value: '3+' },
   { icon: Award, label: 'Awards Won', value: '10+' },
 ];
 
-const FEATURED_PROJECTS_DATA = [
+const FEATURED_PROJECTS_DATA: Carousel3DItem[] = [
   {
+    id: 1,
     title: 'Vegetable Selling Website',
+    brand: 'Personal',
     description: 'A modern e-commerce platform for selling fresh vegetables with user-friendly interface and secure payment integration.',
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=250&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=250&fit=crop',
     tags: ['JavaScript', 'E-commerce', 'Web'],
     link: 'https://github.com/idivyanshdubey/vegetable-selling-website',
   },
   {
+    id: 2,
     title: 'FullStack Insight Hub',
+    brand: 'Personal',
     description: 'Comprehensive full-stack application showcasing modern web development practices and data insights.',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
     tags: ['Java', 'Full-Stack', 'Analytics'],
     link: 'https://github.com/idivyanshdubey/FullStack-Insight-Hub',
   },
   {
+    id: 3,
     title: 'Car Rental Management System',
+    brand: 'Personal',
     description: 'Complete car rental management solution with booking, inventory, and customer management features.',
-    image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=250&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=250&fit=crop',
     tags: ['Java', 'Management', 'System'],
     link: 'https://github.com/idivyanshdubey/Car-Rental-Management-System',
   },
@@ -333,52 +340,8 @@ const Home: React.FC = () => {
               Showcasing innovative solutions that demonstrate technical excellence and creativity
             </p>
           </div>
-          {/* Using a key for the InfiniteScroll component to ensure it re-renders if projects change. */}
-          <div style={{ height: '400px', position: 'relative' }} className="animate-slide-up">
-            <InfiniteScroll
-              items={FEATURED_PROJECTS_DATA.map(project => ({
-                content: (
-                  <div className="h-full flex flex-col justify-between">
-                    <div className="h-48 bg-gray-200 dark:bg-gray-600 overflow-hidden rounded-xl mb-4 flex-shrink-0 hover:shadow-lg transition-all duration-300">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col">
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
-                        <DecryptedText
-                          text={project.title}
-                          speed={70}
-                          maxIterations={6}
-                          sequential={false}
-                          className="text-xl font-semibold text-gray-900 dark:text-gray-100"
-                          encryptedClassName="text-xl font-semibold text-gray-400 dark:text-gray-500"
-                          animateOn="hover"
-                        />
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm line-clamp-3 flex-1">{project.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {project.tags.map(tag => (
-                          <span key={tag} className="px-2 py-1 bg-primary-100 dark:bg-cyan-500/20 text-primary-700 dark:text-cyan-400 text-xs rounded-full">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-primary-600 dark:text-cyan-400 hover:text-primary-700 dark:hover:text-cyan-300 font-medium text-sm transition-colors duration-300 inline-flex items-center">
-                        Learn More <ExternalLink className="w-4 h-4 ml-1" />
-                      </a>
-                    </div>
-                  </div>
-                ),
-              }))}
-              isTilted={false}
-              autoplay={true}
-              autoplaySpeed={0.02}
-              autoplayDirection="left"
-              pauseOnHover={true}
-            />
+          <div className="animate-slide-up">
+            <Carousel3D items={FEATURED_PROJECTS_DATA} />
           </div>
 
           <div className="text-center mt-32 animate-fade-in">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, TrendingUp, Users, Eye, MousePointer, Clock, BarChart3, PieChart, Activity } from 'lucide-react';
+import { Download, TrendingUp, Users, Eye, MousePointer, Clock, BarChart3, PieChart, Activity, Phone, CheckCircle, XCircle } from 'lucide-react';
 import { Bar, Line, Pie, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -52,14 +52,62 @@ interface PerformanceData {
   geographic_data: Array<{ country: string; visitors: number }>;
 }
 
+interface PhoneValidationResult {
+  valid: boolean;
+  phone: string;
+  country: string;
+  country_code: string;
+  phone_type: string;
+  carrier: string;
+  format: {
+    international: string;
+    local: string;
+    e164: string;
+  };
+  location: string;
+}
+
 const Analytics: React.FC = () => {
   const [timeRange, setTimeRange] = useState('7d');
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [performanceData, setPerformanceData] = useState<PerformanceData | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('');
+  const [phoneValidation, setPhoneValidation] = useState<PhoneValidationResult | null>(null);
+  const [phoneLoading, setPhoneLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const handleExport = () => {
     analytics.downloadAnalyticsData(timeRange);
+  };
+
+  const validatePhone = async () => {
+    if (!phoneNumber.trim()) return;
+    
+    setPhoneLoading(true);
+    setPhoneError(null);
+    setPhoneValidation(null);
+
+    try {
+      const params = new URLSearchParams({
+        phone: phoneNumber,
+        ...(countryCode && { country_code: countryCode })
+      });
+
+      const response = await fetch(`/api/verify/phone?${params}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Validation failed');
+      }
+
+      setPhoneValidation(data);
+    } catch (err) {
+      setPhoneError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setPhoneLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -374,9 +422,100 @@ const Analytics: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Phone Validation */}
+        <div className="card p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Phone Number Validation</h2>
+            <Phone className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </div>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+1234567890"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="country" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Country Code
+                </label>
+                <input
+                  type="text"
+                  id="country"
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
+                  placeholder="US, IN, GB"
+                  maxLength={2}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={validatePhone}
+                  disabled={phoneLoading || !phoneNumber.trim()}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                >
+                  {phoneLoading ? 'Validating...' : 'Validate'}
+                </button>
+              </div>
+            </div>
+
+            {phoneError && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+                <div className="flex items-center">
+                  <XCircle className="w-5 h-5 text-red-500 mr-2" />
+                  <p className="text-red-700 dark:text-red-300">{phoneError}</p>
+                </div>
+              </div>
+            )}
+
+            {phoneValidation && (
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <div className="flex items-center mb-3">
+                  {phoneValidation.valid ? (
+                    <CheckCircle className="w-6 h-6 text-green-500 mr-2" />
+                  ) : (
+                    <XCircle className="w-6 h-6 text-red-500 mr-2" />
+                  )}
+                  <h3 className="text-lg font-semibold">
+                    {phoneValidation.valid ? 'Valid Phone Number' : 'Invalid Phone Number'}
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-semibold">Original:</span> {phoneValidation.phone || 'N/A'}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Country:</span> {phoneValidation.country || 'N/A'} ({phoneValidation.country_code || 'N/A'})
+                  </div>
+                  <div>
+                    <span className="font-semibold">Type:</span> {phoneValidation.phone_type || 'N/A'}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Carrier:</span> {phoneValidation.carrier || 'N/A'}
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="font-semibold">Formatted:</span> {phoneValidation.format?.international || phoneValidation.phone || 'N/A'}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Analytics; 
+export default Analytics;

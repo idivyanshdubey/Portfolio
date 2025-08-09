@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useInView } from '../utils/useInView';
 import { Award, GraduationCap, Star, BookOpen, Briefcase, UserIcon, X, AlertTriangle, Download } from 'lucide-react';
+import { ScrollTimeline, TimelineEvent } from '../components/ScrollTimeline';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Data and Constants for Better Organization ---
 const getTimelineIcon = (event: string) => {
@@ -16,6 +18,7 @@ const getTimelineIcon = (event: string) => {
 const CERTIFICATIONS_DATA = [
   { name: 'Oracle Certified Java SE 11', image: '/certifications/oracle_certificate.jpeg' },
   { name: 'Microsoft Azure AI Essentials', image: '/certifications/Azure.jpg' },
+  { name: 'Atlassian Agile Project Management', image: '/certifications/Atlassian.jpeg' },
   { name: 'TCS iON Career Edge', image: '/certifications/TCS.jpg' },
   { name: 'Generative AI Specialization', image: '/certifications/Gen.jpg' },
   { name: 'Mastering Data Analysis with Pandas', image: '/certifications/data-analysis.png' },
@@ -87,73 +90,95 @@ const CertModal: React.FC<CertModalProps> = ({ selectedCert, closeCertModal }) =
     }
   }, [selectedCert]);
 
-  if (!selectedCert) return null;
-
-  const getDownloadFilename = (name: string) => {
-    const fileExtension = selectedCert.image.split('.').pop();
+  const getDownloadFilename = (name: string, imageUrl: string) => {
+    const fileExtension = imageUrl.split('.').pop();
     const sanitizedName = name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
     return `Divyansh_Dubey_${sanitizedName}.${fileExtension}`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" aria-labelledby="cert-modal-title" role="dialog" aria-modal="true">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ease-out animate-backdrop-fade-in"
-        onClick={closeCertModal}
-        aria-hidden="true"
-      ></div>
+    <AnimatePresence>
+      {selectedCert && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          aria-labelledby="cert-modal-title"
+          role="dialog"
+          aria-modal="true"
+          onClick={closeCertModal}
+        >
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            aria-hidden="true"
+          />
 
-      {/* Modal Card */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 animate-scale-in">
-        {/* Modal Header */}
-        <div className="sticky top-0 p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-t-2xl flex justify-between items-center z-10">
-          <h2 id="cert-modal-title" className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-0 text-center w-full">{selectedCert.name}</h2>
-          <button
-            onClick={closeCertModal}
-            className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors absolute top-2 right-2"
-            aria-label="Close"
+          {/* Modal Card */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20"
+            onClick={(e) => e.stopPropagation()}
           >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Modal Content */}
-        <div className="p-6 flex items-center justify-center">
-          {imageError ? (
-            <div className="flex flex-col items-center justify-center w-full min-h-[300px] text-center text-gray-500 dark:text-gray-400">
-              <AlertTriangle className="w-12 h-12 mb-4 text-red-500" />
-              <p>Image not found. Please check the file path.</p>
+            {/* Modal Header */}
+            <div className="sticky top-0 p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-t-2xl flex justify-between items-center z-10">
+              <h2 id="cert-modal-title" className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-0 text-center w-full">{selectedCert.name}</h2>
+              <button
+                onClick={closeCertModal}
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors absolute top-2 right-2"
+                aria-label="Close"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
-          ) : (
-            <img
-              src={`${selectedCert.image}?${selectedCert.name.replace(/\s/g, '')}${Date.now()}`}
-              alt={`Certificate for ${selectedCert.name}`}
-              className="w-full object-contain rounded-lg mx-auto"
-              style={{ display: 'block' }}
-              loading="eager"
-            />
-          )}
-        </div>
 
-        {/* Modal Footer */}
-        <div className="sticky bottom-0 p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-b-2xl flex justify-end gap-4">
-          <a
-            href={selectedCert.image}
-            download={getDownloadFilename(selectedCert.name)}
-            className="inline-flex items-center px-6 py-2 bg-blue-600 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors"
-          >
-            <Download className="w-5 h-5 mr-2" /> Download
-          </a>
-          <button
-            onClick={closeCertModal}
-            className="px-6 py-2 bg-primary-600 dark:bg-cyan-600 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-cyan-700 transition-colors"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+            {/* Modal Content */}
+            <div className="p-6 flex items-center justify-center">
+              {imageError ? (
+                <div className="flex flex-col items-center justify-center w-full min-h-[300px] text-center text-gray-500 dark:text-gray-400">
+                  <AlertTriangle className="w-12 h-12 mb-4 text-red-500" />
+                  <p>Image not found. Please check the file path.</p>
+                </div>
+              ) : (
+                <img
+                  src={`${selectedCert.image}?${selectedCert.name.replace(/\s/g, '')}${Date.now()}`}
+                  alt={`Certificate for ${selectedCert.name}`}
+                  className="w-full object-contain rounded-lg mx-auto"
+                  style={{ display: 'block' }}
+                  loading="eager"
+                />
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-b-2xl flex justify-end gap-4">
+              <a
+                href={selectedCert.image}
+                download={getDownloadFilename(selectedCert.name, selectedCert.image)}
+                className="inline-flex items-center px-6 py-2 bg-blue-600 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors"
+              >
+                <Download className="w-5 h-5 mr-2" /> Download
+              </a>
+              <button
+                onClick={closeCertModal}
+                className="px-6 py-2 bg-primary-600 dark:bg-cyan-600 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-cyan-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -181,7 +206,8 @@ const About: React.FC = () => {
         }
         const data: TimelineItem[] = await res.json();
         const sortedData = data.sort((a, b) => a.year - b.year);
-        setTimeline(sortedData);
+        const limitedData = sortedData.slice(-15);
+        setTimeline(limitedData);
       } catch (error) {
         console.error('Failed to fetch timeline data:', error);
         setTimelineError(true);
@@ -281,31 +307,29 @@ const About: React.FC = () => {
               Timeline data could not be loaded. Please check the file path.
             </div>
           ) : (
-            <div className="relative">
-              <div className="border-l-4 border-cyan-500 dark:border-cyan-400 absolute h-full left-6 top-0"></div>
-              <ul className="space-y-12">
-                {timeline.map((item: TimelineItem, idx) => {
-                  const Icon = getTimelineIcon(item.event);
-                  return (
-                    <li key={idx} className="relative flex items-start group animate-fade-in-up" style={{ animationDelay: `${0.1 + idx * 0.2}s` }}>
-                      <span className="absolute -left-2.5 flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-lg group-hover:scale-110 transition-transform ring-4 ring-white dark:ring-gray-900">
-                        <Icon className="w-7 h-7" aria-hidden="true" />
-                      </span>
-                      <div className="ml-16 w-full">
-                        <div className="flex items-center gap-3">
-                          <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">{item.year}</span>
-                          <span className="text-xs px-2 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 rounded-full shadow">Milestone</span>
-                        </div>
-                        <div className="mt-2 bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-5 border border-cyan-100 dark:border-cyan-900 transition-all duration-300 group-hover:shadow-2xl">
-                          <p className="text-gray-700 dark:text-gray-300 text-base">
-                            {item.event}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-                  );
+            <div className="animate-slide-up">
+              <ScrollTimeline
+                events={timeline.map(item => {
+                  const parts = item.event.split(':');
+                  const title = parts[0]?.trim() || item.event.slice(0, 50);
+                  const description = parts[1]?.trim() || item.event;
+                  
+                  return {
+                    year: item.year.toString(),
+                    title: title,
+                    description: description !== title ? description : '',
+                  };
                 })}
-              </ul>
+                title="Career Timeline"
+                subtitle="Scroll to explore the journey"
+                cardAlignment="alternating"
+                revealAnimation="fade"
+                progressIndicator={true}
+                cardVariant="elevated"
+                cardEffect="none"
+                parallaxIntensity={0.1}
+                dateFormat="badge"
+              />
             </div>
           )}
         </section>

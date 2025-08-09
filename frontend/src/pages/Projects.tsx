@@ -14,7 +14,7 @@ const Projects: React.FC = () => {
       description: 'A modern, AI-powered data science portfolio featuring interactive demos, analytics, a chatbot, and a blog. Built with React, FastAPI, PostgreSQL, and advanced UI/UX for showcasing machine learning and full-stack projects.',
       image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop',
       category: 'ai',
-      tags: ['React', 'FastAPI', 'AI', 'Portfolio', 'Data Science'],
+      tags: ['React', 'FastAPI', 'AI', 'Machine Learning', 'Data Science'],
       github: '#', // Replace with actual GitHub repo if available
       live: '#', // Replace with actual live link if available
       featured: true
@@ -25,7 +25,7 @@ const Projects: React.FC = () => {
       description: 'A modern e-commerce platform for selling fresh vegetables with user-friendly interface and secure payment integration.',
       image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=250&fit=crop',
       category: 'web-development',
-      tags: ['JavaScript', 'E-commerce', 'Web Development'],
+      tags: ['React', 'JavaScript', 'E-commerce', 'Web Development'],
       github: 'https://github.com/idivyanshdubey/vegetable-selling-website',
       live: 'https://github.com/idivyanshdubey/vegetable-selling-website',
       featured: true
@@ -36,7 +36,7 @@ const Projects: React.FC = () => {
       description: 'Comprehensive full-stack application showcasing modern web development practices and data insights.',
       image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
       category: 'web-development',
-      tags: ['Java', 'Full-Stack', 'Analytics'],
+      tags: ['Java', 'Full-Stack', 'PySpark','Apache Kafka','PostgreSQL'],
       github: 'https://github.com/idivyanshdubey/FullStack-Insight-Hub',
       live: 'https://github.com/idivyanshdubey/FullStack-Insight-Hub',
       featured: true
@@ -47,24 +47,35 @@ const Projects: React.FC = () => {
       description: 'Complete car rental management solution with booking, inventory, and customer management features.',
       image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=250&fit=crop',
       category: 'web-development',
-      tags: ['Java', 'Management', 'System'],
+      tags: ['Java', 'MySql', 'Angular', 'Spring Boot'],
       github: 'https://github.com/idivyanshdubey/Car-Rental-Management-System',
       live: 'https://github.com/idivyanshdubey/Car-Rental-Management-System',
       featured: true
     },
     {
       id: 4,
+      title: 'AI-Powered Fraud Detection System',
+      description: 'Advanced machine learning system for real-time fraud detection using ensemble methods, anomaly detection algorithms, and behavioral analysis. Built with Python, scikit-learn, and deployed with FastAPI for high-throughput transaction monitoring.',
+      image: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&h=250&fit=crop',
+      category: 'machine-learning',
+      tags: ['Python', 'Machine Learning', 'Fraud Detection', 'FastAPI', 'PySpark', 'Anomaly Detection'],
+      github: 'https://github.com/idivyanshdubey/Fraud-Detector',
+      live: 'https://github.com/idivyanshdubey/Fraud-Detector',
+      featured: true
+    },
+    {
+      id: 5,
       title: 'IPL Cricket Management',
       description: 'Cricket tournament management system for IPL with player statistics and match scheduling.',
       image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=250&fit=crop',
       category: 'web-development',
-      tags: ['Java', 'Cricket', 'Management'],
+      tags: ['Java', 'MySql', 'Angular', 'Spring Boot'],
       github: 'https://github.com/idivyanshdubey/IPL-',
       live: 'https://github.com/idivyanshdubey/IPL-',
       featured: false
     },
     {
-      id: 5,
+      id: 6,
       title: 'Angular Form with Spring Boot',
       description: 'Modern web application demonstrating Angular frontend integration with Spring Boot backend.',
       image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop',
@@ -75,27 +86,17 @@ const Projects: React.FC = () => {
       featured: false
     },
     {
-      id: 6,
+      id: 7,
       title: 'Expenditure Manager',
       description: 'Personal finance management application for tracking expenses and budgeting.',
       image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop',
       category: 'web-development',
-      tags: ['CSS', 'Finance', 'Management'],
+      tags: ['CSS', 'HTML', 'JavaScript', 'Bootstrap'],
       github: 'https://github.com/idivyanshdubey/Expenditure-Manager',
       live: 'https://github.com/idivyanshdubey/Expenditure-Manager',
       featured: false
-    },
-    {
-      id: 7,
-      title: 'iOS Calendar App',
-      description: 'Native iOS calendar application built with Swift for efficient time management.',
-      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
-      category: 'mobile',
-      tags: ['Swift', 'iOS', 'Calendar'],
-      github: 'https://github.com/idivyanshdubey/Calendar',
-      live: 'https://github.com/idivyanshdubey/Calendar',
-      featured: false
-    },
+    },    
+  
     {
       id: 8,
       title: 'DAA Algorithm Assignments',

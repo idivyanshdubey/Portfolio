@@ -40,6 +40,9 @@ class Settings:
         
         # ML Model Configuration
         self.model_cache_dir: str = "./ml_models/cache"
+        
+        # External API Keys
+        self.veriphone_api_key: str = os.getenv("VERIPHONE_API_KEY", "your-veriphone-api-key")
 
 # Create settings instance
-settings = Settings() 
+settings = Settings()
