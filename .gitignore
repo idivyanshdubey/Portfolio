@@ -16,8 +16,6 @@ backend/api/routes/contact.py
 backend/models/contact.py
 backend/test_emailjs.py
 backend/EMAIL_SETUP.md
-frontend/src/components/ContactForm.tsx
-frontend/src/config/emailjs.ts
 
 # Database files with contact data
 *.db
