@@ -52,7 +52,7 @@ Thumbs.db
 
 # Build
 /dist/
-/build/
+build/
 
 # Others
 *.sqlite3
