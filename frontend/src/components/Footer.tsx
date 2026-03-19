@@ -34,6 +34,7 @@ const Footer: React.FC = () => {
 
   const quickLinks = [
     { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
     { name: 'Projects', path: '/projects' },
     { name: 'AI Demos', path: '/demos' },
     { name: 'Blog', path: '/blog' },
@@ -56,14 +57,13 @@ const Footer: React.FC = () => {
               </div>
               <div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                  AI Portfolio
+                  Divyansh Dubey
                 </span>
-                <p className="text-xs text-gray-400 mt-1">Data Science & AI Solutions</p>
+                <p className="text-xs text-gray-400 mt-1">Full Stack Developer & AI Engineer</p>
               </div>
             </div>
             <p className="text-gray-300 mb-8 leading-relaxed max-w-lg text-lg">
-              A showcase of AI-powered projects, data science insights, and machine learning demos. 
-              Exploring the intersection of technology and innovation to create intelligent solutions.
+              Software Engineer at LTIMindtree. Oracle Certified Java SE 11 Professional. Passionate about building intelligent, scalable solutions at the intersection of full-stack engineering and AI.
             </p>
             <div className="flex space-x-3">
               {socialLinks.map((social, index) => {
@@ -142,7 +142,7 @@ const Footer: React.FC = () => {
         {/* Enhanced Bottom Bar */}
         <div className="border-t border-gray-700/50 mt-12 pt-8 flex flex-col lg:flex-row justify-between items-center animate-fade-in">
           <p className="text-gray-400 text-sm">
-            © {currentYear} <span className="text-cyan-400 font-medium">AI Portfolio</span>. All rights reserved.
+            © {currentYear} <span className="text-cyan-400 font-medium">Divyansh Dubey</span>. All rights reserved.
           </p>
           <div className="flex items-center space-x-2 text-gray-400 text-sm mt-4 lg:mt-0">
             <span>Made with</span>

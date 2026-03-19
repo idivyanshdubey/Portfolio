@@ -51,5 +51,9 @@
   {
     "year": 2025,
     "event": "Earned the Atlassian Agile Project Management Professional Certificate, demonstrating hands-on proficiency in Agile project management and team collaboration."
+  },
+  {
+    "year": 2026,
+    "event": "Developed BelVoyage, a modern, responsive React/Vite marketing site for a luxury travel house, featuring Framer Motion animations and EmailJS integration."
   }
 ] 

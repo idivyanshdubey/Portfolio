@@ -149,8 +149,9 @@ export const ScrollTimeline = ({
   }, [cardAlignment, revealAnimation]);
 
   const getConnectorClasses = () => {
+    // On mobile: line on left. On desktop: line in center.
     const baseClasses = cn(
-      "absolute left-1/2 transform -translate-x-1/2",
+      "absolute lg:left-1/2 left-4 transform lg:-translate-x-1/2",
       lineColor
     );
     const widthStyle = `w-[${progressLineWidth}px]`;
@@ -171,8 +172,9 @@ export const ScrollTimeline = ({
 
   const getCardClasses = useCallback((index: number) => {
     const baseClasses = "relative p-4 rounded-lg border transition-all duration-200";
-    const alignmentClasses = cardAlignment === 'alternating' 
-      ? (index % 2 === 0 ? 'mr-auto' : 'ml-auto') 
+    // On mobile: always left-aligned, on desktop: alternating
+    const alignmentClasses = cardAlignment === 'alternating'
+      ? `lg:${index % 2 === 0 ? 'mr-auto' : 'ml-auto'} mx-0`
       : 'mx-auto';
 
     const variantClasses: Record<string, string> = {
@@ -181,7 +183,8 @@ export const ScrollTimeline = ({
       outline: 'border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-800/50',
     };
 
-    return `${baseClasses} ${alignmentClasses} ${variantClasses[cardVariant] || variantClasses.elevated} max-w-sm w-full`;
+    // On mobile: full width. On lg: max-w-sm
+    return `${baseClasses} ${alignmentClasses} ${variantClasses[cardVariant] || variantClasses.elevated} w-full lg:max-w-sm`;
   }, [cardAlignment, cardVariant]);
 
   const parallaxY = useTransform(
@@ -212,22 +215,22 @@ export const ScrollTimeline = ({
             className={cn(getConnectorClasses(), "h-full absolute top-0 z-10")}
           ></div>
 
-          {/* Progress Indicator with Traveling Glow */}
-          {progressIndicator && (
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700 rounded-full transform -translate-x-1/2">
-              <motion.div 
-                className="w-full bg-gradient-to-b from-cyan-400 via-blue-500 to-purple-500 rounded-full"
-                style={{ height: progressHeight }}
-              />
-              <motion.div 
-                className="absolute left-1/2 w-3 h-3 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-lg"
-                style={{ 
-                  top: progressHeight,
-                  boxShadow: '0 0 12px rgba(168, 85, 247, 0.6), 0 0 20px rgba(59, 130, 246, 0.3)'
-                }}
-              />
-            </div>
-          )}
+          {/* Progress line: left edge on mobile, center on desktop */}
+      {progressIndicator && (
+        <div className="absolute lg:left-1/2 left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700 rounded-full lg:transform lg:-translate-x-1/2">
+          <motion.div 
+            className="w-full bg-gradient-to-b from-cyan-400 via-blue-500 to-purple-500 rounded-full"
+            style={{ height: progressHeight }}
+          />
+          <motion.div 
+            className="absolute left-1/2 w-3 h-3 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-lg"
+            style={{ 
+              top: progressHeight,
+              boxShadow: '0 0 12px rgba(168, 85, 247, 0.6), 0 0 20px rgba(59, 130, 246, 0.3)'
+            }}
+          />
+        </div>
+      )}
 
           <div className="relative z-20">
             {events.map((event, index) => (
@@ -235,8 +238,11 @@ export const ScrollTimeline = ({
                 key={event.id || index}
                 ref={(el: HTMLDivElement | null) => { timelineRefs.current[index] = el; }}
                 className={cn(
-                  "relative flex items-center mb-20 py-4",
-                  "flex-col lg:flex-row",
+                  "relative flex items-center mb-6 lg:mb-20 py-4",
+                  // Mobile: row layout with left padding for the left-side line
+                  // Desktop: alternating center-line layout
+                  "flex-row lg:flex-row",
+                  "pl-10 lg:pl-0",
                   cardAlignment === "alternating"
                     ? index % 2 === 0
                       ? "lg:justify-start"
@@ -250,10 +256,12 @@ export const ScrollTimeline = ({
                   transition: 'opacity 0.3s ease-in-out',
                 }}
               >
+                {/* Dot: left-edge on mobile, center on desktop */}
                 <div
                   className={cn(
                     "absolute top-1/2 transform -translate-y-1/2 z-30",
-                    "left-1/2 -translate-x-1/2"
+                    "left-4 -translate-x-1/2",       // mobile: left edge
+                    "lg:left-1/2 lg:-translate-x-1/2" // desktop: center
                   )}
                 >
                   <motion.div
@@ -286,7 +294,8 @@ export const ScrollTimeline = ({
                 <motion.div
                   className={cn(
                     getCardClasses(index),
-                    "mt-12 lg:mt-0"
+                    // No mt-12 needed on mobile since we use flex-row + paddingLeft now
+                    "lg:mt-0"
                   )}
                   variants={getCardVariants(index)}
                   initial="hidden"

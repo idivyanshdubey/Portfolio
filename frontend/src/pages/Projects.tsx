@@ -20,6 +20,17 @@ const Projects: React.FC = () => {
       featured: true
     },
     {
+      id: 100,
+      title: 'BelVoyage',
+      description: 'A modern, responsive, multi-page marketing site for BelVoyage — a boutique luxury travel house. Features an animated header, signature experiences carousel, and a consultation request form via EmailJS.',
+      image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=250&fit=crop',
+      category: 'web-development',
+      tags: ['React', 'Vite', 'Framer Motion', 'React Router', 'CSS'],
+      github: 'https://github.com/Amay4810/Belvoyage', 
+      live: 'https://thebelvoyage.com/', 
+      featured: true
+    },
+    {
       id: 1,
       title: 'Vegetable Selling Website',
       description: 'A modern e-commerce platform for selling fresh vegetables with user-friendly interface and secure payment integration.',
@@ -175,6 +186,7 @@ const Projects: React.FC = () => {
                 <img 
                   src={project.image} 
                   alt={project.title}
+                  loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 {project.featured && (
@@ -226,7 +238,7 @@ const Projects: React.FC = () => {
 
         {/* No Results */}
         {filteredProjects.length === 0 && (
-          <div className="text-center py-12">
+          <div className="text-center mt-12 animate-fade-in">
             <p className="text-gray-500 dark:text-gray-400 text-lg">No projects found matching your criteria.</p>
           </div>
         )}

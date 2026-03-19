@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -6,15 +6,27 @@ import { initAllAnimations, ensureAnimationVisibility } from './utils/scrollAnim
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import Home from './pages/Home';
-import Projects from './pages/Projects';
-import Demos from './pages/Demos';
-import Blog from './pages/Blog';
-import Analytics from './pages/Analytics';
-import Chatbot from './pages/Chatbot';
-import About from './pages/About';
 import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
+
+// Lazy-load all pages for code splitting — improves initial bundle size significantly
+const Home = lazy(() => import('./pages/Home'));
+const Projects = lazy(() => import('./pages/Projects'));
+const Demos = lazy(() => import('./pages/Demos'));
+const Blog = lazy(() => import('./pages/Blog'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const Chatbot = lazy(() => import('./pages/Chatbot'));
+const About = lazy(() => import('./pages/About'));
+
+// Lightweight fallback shown during code-split chunk loading
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-12 h-12 rounded-full border-4 border-cyan-500/30 border-t-cyan-500 animate-spin" />
+      <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">Loading...</span>
+    </div>
+  </div>
+);
 
 // Particle Background Component - IMPROVED
 const ParticleBackground = () => {
@@ -55,7 +67,9 @@ const EnhancedApp = () => {
       <div className="relative z-10">
         <Navbar />
         <main className="flex-1">
-          <AnimatedRoutes />
+          <Suspense fallback={<PageLoader />}>
+            <AnimatedRoutes />
+          </Suspense>
         </main>
         <Footer />
         <ScrollToTop />
@@ -86,7 +100,7 @@ function AnimatedRoutes() {
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Home />
@@ -97,7 +111,7 @@ function AnimatedRoutes() {
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Projects />
@@ -108,7 +122,7 @@ function AnimatedRoutes() {
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Demos />
@@ -119,7 +133,7 @@ function AnimatedRoutes() {
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Blog />
@@ -130,7 +144,7 @@ function AnimatedRoutes() {
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Analytics />
@@ -141,7 +155,7 @@ function AnimatedRoutes() {
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <Chatbot />
@@ -152,7 +166,7 @@ function AnimatedRoutes() {
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="fade-in-up"
           >
             <About />
@@ -163,9 +177,20 @@ function AnimatedRoutes() {
   );
 }
 
+function ScrollToTopRoute() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
     <Router>
+      <ScrollToTopRoute />
       <EnhancedApp />
     </Router>
   );

@@ -90,33 +90,32 @@ class AIAgent:
         """Load the knowledge base with enhanced information"""
         return {
             "portfolio": {
-                "keywords": ["portfolio", "projects", "work", "experience", "skills", "background", "about", "who", "creator"],
+                "keywords": ["portfolio", "projects", "work", "experience", "skills", "background", "about", "who", "creator", "divyansh"],
                 "responses": [
-                    "I'm Jarvis, an AI portfolio assistant! I can help you explore my creator's data science projects, AI demos, and blog posts. What would you like to know?",
-                    "My creator has built several interesting projects including house price prediction models, sentiment analysis APIs, and data visualization dashboards. Which area interests you?",
-                    "You can explore projects in machine learning, NLP, computer vision, and data analysis. I can also help you try out live AI demos!"
+                    "I'm Jarvis, Divyansh's AI assistant! I can help you explore his data science and full-stack projects, AI demos, and experience. What would you like to know?",
+                    "Divyansh has built several robust projects including an AI Fraud Detection System, an IPL Management System, and a FullStack Insight Hub. Which area interests you?",
+                    "You can explore his projects in full-stack development, machine learning, and data engineering. I can also help you try out live AI demos!"
                 ],
                 "facts": [
-                    "Creator specializes in data science and AI",
-                    "Has experience with Python, React, FastAPI",
-                    "Built multiple ML models and web applications",
-                    "Focuses on practical, real-world applications"
+                    "Creator is Divyansh Dubey, a Software Engineer at LTIMindtree",
+                    "Holds an Oracle Certified Java SE 11 Professional certification",
+                    "Has a B.Tech in CSE from MAIT, Delhi",
+                    "Specializes in full-stack enterprise applications and AI/ML solutions"
                 ]
             },
             "projects": {
-                "keywords": ["project", "house price", "sentiment", "visualization", "dashboard", "model", "application", "work", "build", "create"],
+                "keywords": ["project", "fraud detection", "ipl", "car rental", "insight hub", "dashboard", "model", "application", "work", "build", "create", "vegetable"],
                 "responses": [
-                    "Here are some key projects:\n• House Price Prediction Model (92% accuracy)\n• Sentiment Analysis API (Real-time NLP)\n• Data Visualization Dashboard (Interactive charts)\n• Image Classification System (Computer Vision)\n• Recommendation Engine (ML)\n\nWould you like details on any specific project?",
-                    "The projects showcase skills in Python, scikit-learn, FastAPI, React, and various data science libraries. Which technology stack interests you?",
-                    "You can view detailed project descriptions, technologies used, and even try live demos. What type of project would you like to explore?"
+                    "Here are some key projects:\n• BelVoyage (React, Vite, Framer Motion)\n• AI-Powered Fraud Detection System (ML, Python, FastAPI)\n• IPL Cricket Management System (Java, Spring Boot, Angular)\n• Car Rental Management (Spring Boot, MySQL)\n• FullStack Insight Hub (Java, PySpark, Kafka, PostgreSQL)\n• Vegetable E-commerce Website (JS)\n\nWould you like details on any specific project?",
+                    "The projects showcase skills in Java, Spring Boot, Python, scikit-learn, React, Angular, and various cloud/data libraries. Which technology stack interests you?",
+                    "You can view detailed project descriptions, technologies used, and GitHub links. What type of project would you like to explore?"
                 ],
                 "facts": [
-                    "House price prediction uses scikit-learn and achieves 92% accuracy",
-                    "Sentiment analysis API processes text in real-time",
-                    "Data visualization dashboard uses Plotly for interactive charts",
-                    "All projects are deployed and accessible online",
-                    "Image classification uses deep learning models",
-                    "Recommendation engine uses collaborative filtering"
+                    "BelVoyage is a modern, responsive React/Vite single-page marketing site for a luxury travel house with EmailJS integration",
+                    "Fraud detection system uses ensemble methods and PySpark for high-throughput anomaly detection",
+                    "IPL and Car Rental projects are robust full-stack apps built with Java, Spring Boot, and Angular",
+                    "FullStack Insight Hub demonstrates data streaming with Kafka and PySpark",
+                    "All projects are accessible on GitHub at github.com/idivyanshdubey"
                 ]
             },
             "demos": {
@@ -135,33 +134,32 @@ class AIAgent:
                 ]
             },
             "skills": {
-                "keywords": ["skill", "technology", "python", "machine learning", "ai", "data science", "expertise", "proficiency", "languages", "frameworks"],
+                "keywords": ["skill", "technology", "java", "python", "spring boot", "react", "angular", "machine learning", "ai", "data science", "expertise", "frameworks", "stack"],
                 "responses": [
-                    "My creator specializes in:\n• Python (FastAPI, Flask, Django)\n• Machine Learning (scikit-learn, TensorFlow, PyTorch)\n• Data Science (pandas, numpy, matplotlib, seaborn)\n• Web Development (React, TypeScript, Node.js)\n• Cloud & DevOps (Docker, AWS, Azure)\n• Database (PostgreSQL, MongoDB, Redis)\n\nWhich area would you like to know more about?",
-                    "The tech stack includes modern tools for full-stack development, with a focus on AI/ML applications and data visualization.",
-                    "Skills range from traditional software development to cutting-edge AI techniques. There's also experience with cloud deployment and CI/CD pipelines."
+                    "Divyansh specializes in:\n• Programming (Java, Python, TypeScript)\n• Frontend (React, Angular, Bootstrap)\n• Backend (Spring Boot, FastAPI, Node.js)\n• Database (PostgreSQL, MongoDB)\n• DevOps & Cloud (Docker, Microsoft Azure)\n• Big Data & Messaging (Kafka, PySpark)\n\nWhich area would you like to know more about?",
+                    "The tech stack includes robust enterprise tools like Java/Spring Boot alongside modern web tools like React/Angular and AI/ML frameworks.",
+                    "Skills range from building distributed microservices using Kafka to developing real-time fraud detection ML models."
                 ],
                 "facts": [
-                    "Expert in Python with 5+ years experience",
-                    "Proficient in machine learning and deep learning",
-                    "Full-stack development with React and FastAPI",
-                    "Experience with cloud platforms and DevOps",
-                    "Knowledge of multiple programming languages",
-                    "Expertise in data engineering and ETL processes"
+                    "Oracle Certified Java SE 11 Professional",
+                    "Expert in Java and Spring Boot for enterprise backend development",
+                    "Proficient in Python for machine learning and data engineering",
+                    "Full-stack development experience with both React and Angular",
+                    "Experience with Microsoft Azure and Docker"
                 ]
             },
             "contact": {
                 "keywords": ["contact", "email", "linkedin", "github", "hire", "job", "collaboration", "reach out", "connect", "message"],
                 "responses": [
-                    "You can connect through:\n• LinkedIn: [Your LinkedIn Profile]\n• GitHub: [Your GitHub Profile]\n• Email: [Your Email]\n\nI'm happy to discuss collaboration opportunities!",
-                    "My creator is always interested in new opportunities, especially in data science and AI roles. Feel free to reach out!",
-                    "For business inquiries or collaboration, please use the contact information provided. I can also answer questions about availability and project timelines."
+                    "You can connect with Divyansh through:\n• Email: divyanshhdubey10@gmail.com\n• LinkedIn: linkedin.com/in/divyansh-dubey-48101025d\n• GitHub: github.com/idivyanshdubey\n• Location: New Delhi, India\n\nHe's happy to discuss collaboration opportunities!",
+                    "Divyansh is active on LinkedIn and GitHub. Feel free to reach out via email for any inquiries!",
+                    "For business inquiries or networking, please use his email (divyanshhdubey10@gmail.com) or connect on LinkedIn."
                 ],
                 "facts": [
-                    "Available for freelance and full-time opportunities",
-                    "Interested in AI/ML and data science roles",
-                    "Open to collaboration on interesting projects",
-                    "Quick response time for inquiries"
+                    "Currently employed as a Software Engineer at LTIMindtree",
+                    "Based in New Delhi, India",
+                    "Email: divyanshhdubey10@gmail.com",
+                    "Open to open-source collaboration and networking"
                 ]
             },
             "coding": {

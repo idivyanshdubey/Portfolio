@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
+import ReactDOM from 'react-dom';
 import { useInView } from '../utils/useInView';
 import { Award, GraduationCap, Star, BookOpen, Briefcase, UserIcon, X, AlertTriangle, Download } from 'lucide-react';
 import { ScrollTimeline, TimelineEvent } from '../components/ScrollTimeline';
-import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Data and Constants for Better Organization ---
 const getTimelineIcon = (event: string) => {
@@ -16,7 +16,10 @@ const getTimelineIcon = (event: string) => {
 
 // Check and verify these paths against your public folder structure
 const CERTIFICATIONS_DATA = [
+  { name: 'Databricks Certified', image: '/certifications/databricks.jpg' },
   { name: 'Oracle Certified Java SE 11', image: '/certifications/oracle_certificate.jpeg' },
+  { name: 'Oracle Cloud Architect', image: '/certifications/oracle_cloud_architect.jpg' },
+  { name: 'Oracle Data Science', image: '/certifications/oracle_data_science.jpeg' },
   { name: 'Microsoft Azure AI Essentials', image: '/certifications/Azure.jpg' },
   { name: 'Atlassian Agile Project Management', image: '/certifications/Atlassian.jpeg' },
   { name: 'TCS iON Career Edge', image: '/certifications/TCS.jpg' },
@@ -44,8 +47,8 @@ const TECH_STACK_DATA = [
   { name: 'ActiveMQ', icon: '/tech/ActiveMq.png' },
   { name: 'Apache Spark', icon: '/tech/ApacheSpark.png' },
   { name: 'Node.js', icon: 'https://www.vectorlogo.zone/logos/nodejs/nodejs-ar21~bgwhite.svg' },
-  { name: 'FastAPI', icon: '/tech/FastAPI.png' }, 
-  {name: 'Postman', icon: '/tech/Postman.png' },
+  { name: 'FastAPI', icon: '/tech/FastAPI.png' },
+  { name: 'Postman', icon: '/tech/postman.png' },
   { name: 'Microsoft Azure', icon: '/tech/Azure.jpg' },
 ];
 
@@ -67,6 +70,7 @@ const TechIcon: React.FC<TechIconProps> = memo(({ tech, style }) => (
       alt={tech.name}
       className="w-16 h-16 object-contain rounded-lg shadow-sm mb-2 transition-transform duration-300 group-hover:scale-110 group-hover:shadow-lg"
       loading="lazy"
+      decoding="async"
     />
     <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center transition-colors duration-300 group-hover:text-cyan-500">
       {tech.name}
@@ -82,104 +86,117 @@ interface CertModalProps {
 const CertModal: React.FC<CertModalProps> = ({ selectedCert, closeCertModal }) => {
   const [imageError, setImageError] = useState(false);
 
+  // Reset error and lock body scroll when cert changes
   useEffect(() => {
+    setImageError(false);
     if (selectedCert) {
-      const img = new Image();
-      img.onload = () => setImageError(false);
-      img.onerror = () => setImageError(true);
-      img.src = selectedCert.image;
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
+    return () => { document.body.style.overflow = ''; };
   }, [selectedCert]);
 
+  // Escape key to close
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeCertModal(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [closeCertModal]);
+
   const getDownloadFilename = (name: string, imageUrl: string) => {
-    const fileExtension = imageUrl.split('.').pop();
-    const sanitizedName = name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
-    return `Divyansh_Dubey_${sanitizedName}.${fileExtension}`;
+    const ext = imageUrl.split('.').pop();
+    const sanitized = name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+    return `Divyansh_Dubey_${sanitized}.${ext}`;
   };
 
-  return (
-    <AnimatePresence>
-      {selectedCert && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          aria-labelledby="cert-modal-title"
-          role="dialog"
-          aria-modal="true"
-          onClick={closeCertModal}
-        >
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            aria-hidden="true"
-          />
+  if (!selectedCert) return null;
 
-          {/* Modal Card */}
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white/90 dark:bg-gray-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20"
-            onClick={(e) => e.stopPropagation()}
+  return ReactDOM.createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{ animation: 'certFadeIn 0.2s ease-out forwards' }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cert-modal-title"
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={closeCertModal}
+        aria-hidden="true"
+      />
+
+      {/* Modal Card — rendered above backdrop via z-index */}
+      <div
+        className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/30"
+        style={{ animation: 'certSlideIn 0.3s cubic-bezier(0.25,0.46,0.45,0.94) forwards' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="sticky top-0 p-5 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-t-2xl flex items-center justify-between z-10">
+          <h2 id="cert-modal-title" className="text-xl font-bold text-gray-900 dark:text-gray-100 text-center w-full">
+            {selectedCert.name}
+          </h2>
+          <button
+            onClick={closeCertModal}
+            className="absolute right-4 top-4 p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Close"
           >
-            {/* Modal Header */}
-            <div className="sticky top-0 p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-t-2xl flex justify-between items-center z-10">
-              <h2 id="cert-modal-title" className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-0 text-center w-full">{selectedCert.name}</h2>
-              <button
-                onClick={closeCertModal}
-                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors absolute top-2 right-2"
-                aria-label="Close"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-            {/* Modal Content */}
-            <div className="p-6 flex items-center justify-center">
-              {imageError ? (
-                <div className="flex flex-col items-center justify-center w-full min-h-[300px] text-center text-gray-500 dark:text-gray-400">
-                  <AlertTriangle className="w-12 h-12 mb-4 text-red-500" />
-                  <p>Image not found. Please check the file path.</p>
-                </div>
-              ) : (
-                <img
-                  src={`${selectedCert.image}?${selectedCert.name.replace(/\s/g, '')}${Date.now()}`}
-                  alt={`Certificate for ${selectedCert.name}`}
-                  className="w-full object-contain rounded-lg mx-auto"
-                  style={{ display: 'block' }}
-                  loading="eager"
-                />
-              )}
+        {/* Content */}
+        <div className="p-6 flex items-center justify-center min-h-[200px]">
+          {imageError ? (
+            <div className="flex flex-col items-center justify-center w-full min-h-[300px] text-center text-gray-500 dark:text-gray-400">
+              <AlertTriangle className="w-12 h-12 mb-4 text-red-500" />
+              <p className="font-semibold mb-1">Image could not be loaded</p>
+              <p className="text-sm opacity-70 font-mono">{selectedCert.image}</p>
             </div>
+          ) : (
+            <img
+              src={selectedCert.image}
+              alt={`Certificate — ${selectedCert.name}`}
+              className="w-full object-contain rounded-lg"
+              loading="eager"
+              onError={() => setImageError(true)}
+            />
+          )}
+        </div>
 
-            {/* Modal Footer */}
-            <div className="sticky bottom-0 p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-b-2xl flex justify-end gap-4">
-              <a
-                href={selectedCert.image}
-                download={getDownloadFilename(selectedCert.name, selectedCert.image)}
-                className="inline-flex items-center px-6 py-2 bg-blue-600 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors"
-              >
-                <Download className="w-5 h-5 mr-2" /> Download
-              </a>
-              <button
-                onClick={closeCertModal}
-                className="px-6 py-2 bg-primary-600 dark:bg-cyan-600 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-cyan-700 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        {/* Footer */}
+        <div className="sticky bottom-0 p-5 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-b-2xl flex justify-end gap-3">
+          <a
+            href={selectedCert.image}
+            download={getDownloadFilename(selectedCert.name, selectedCert.image)}
+            className="inline-flex items-center px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            <Download className="w-4 h-4 mr-2" /> Download
+          </a>
+          <button
+            onClick={closeCertModal}
+            className="px-5 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+
+      {/* Inline keyframe styles */}
+      <style>{`
+        @keyframes certFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes certSlideIn {
+          from { opacity: 0; transform: scale(0.95) translateY(16px); }
+          to   { opacity: 1; transform: scale(1)    translateY(0);    }
+        }
+      `}</style>
+    </div>,
+    document.body
   );
 };
 
@@ -289,7 +306,7 @@ const About: React.FC = () => {
             Hi, I'm Divyansh Dubey, a passionate <strong>Full Stack Developer</strong>.I am currently a Software Engineer at <strong>LTIMindtree</strong>, where I build robust, scalable web applications using a mix of modern technologies. My work involves creating full-stack solutions and optimizing application performance with a strong focus on data security and integrity.
           </p>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-          I am always eager to leverage new technologies and innovative algorithms, transforming data into intelligent insights and building the future, one solution at a time.
+            I am always eager to leverage new technologies and innovative algorithms, transforming data into intelligent insights and building the future, one solution at a time.
           </p>
         </section>
         {/* --- Career Timeline Section --- */}
@@ -314,7 +331,7 @@ const About: React.FC = () => {
                   const parts = item.event.split(':');
                   const title = parts[0]?.trim() || item.event.slice(0, 50);
                   const description = parts[1]?.trim() || item.event;
-                  
+
                   return {
                     year: item.year.toString(),
                     title: title,

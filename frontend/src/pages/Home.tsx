@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import {
   ArrowRight, Download, Mail, Github, Linkedin, Award, Star, TrendingUp, Users,
   Code, Globe, Server, BarChart3, GraduationCap, BookOpen, Briefcase, UserIcon,
@@ -8,6 +9,30 @@ import { Link } from 'react-router-dom';
 import ContactForm from '../components/ContactForm';
 import Carousel3D, { Carousel3DItem } from '../components/Carousel3D';
 import DecryptedText from '../components/DecryptedText';
+import { useInView } from 'react-intersection-observer';
+
+// Animated Counter Component for Stats Section
+const Counter = ({ end, suffix }: { end: number, suffix: string }) => {
+  const [count, setCount] = useState(0);
+  const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    let startTimestamp: number;
+    const duration = 2000;
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // easeOutExpo easing
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(Math.floor(easeProgress * end));
+      if (progress < 1) window.requestAnimationFrame(step);
+    };
+    window.requestAnimationFrame(step);
+  }, [inView, end]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+};
 
 
 // --- Icon and Data Mapping for Maintainability ---
@@ -128,70 +153,73 @@ const Home: React.FC = () => {
 
   // Use a memoized component for the modal to prevent unnecessary re-renders of its content.
   // Although not a massive performance gain here, it's a good practice for larger components.
-  const ResumeModal = React.memo(() => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
-        onClick={() => setIsResumeOpen(false)}
-        aria-hidden="true" // Hiding from screen readers as it's a background element
-      ></div>
+  const ResumeModal = React.memo(() =>
+    ReactDOM.createPortal(
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
+          onClick={() => setIsResumeOpen(false)}
+          aria-hidden="true" // Hiding from screen readers as it's a background element
+        ></div>
 
-      {/* Modal Card */}
-      <div
-        className="relative w-full max-w-4xl mx-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 flex flex-col md:flex-row overflow-hidden animate-scale-in"
-        style={{ maxHeight: '90vh' }}
-        id="resume-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="resume-modal-title"
-      >
-        {/* Resume Image */}
-        <div className="md:w-1/2 w-full flex items-center justify-center bg-gradient-to-br from-cyan-100/40 to-blue-100/40 dark:from-cyan-900/40 dark:to-blue-900/40 p-4">
-          <img
-            src="/resume.jpg"
-            alt="Divyansh Dubey Resume"
-            className="rounded-xl shadow-lg max-h-[85vh] object-contain border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform duration-300"
-          />
-        </div>
+        {/* Modal Card */}
+        <div
+          className="relative w-full max-w-4xl mx-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 flex flex-col md:flex-row overflow-hidden animate-scale-in"
+          style={{ maxHeight: '90vh' }}
+          id="resume-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="resume-modal-title"
+        >
+          {/* Resume Image */}
+          <div className="md:w-1/2 w-full flex items-center justify-center bg-gradient-to-br from-cyan-100/40 to-blue-100/40 dark:from-cyan-900/40 dark:to-blue-900/40 p-4">
+            <img
+              src="/resume.jpg"
+              alt="Divyansh Dubey Resume"
+              className="rounded-xl shadow-lg max-h-[85vh] object-contain border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform duration-300"
+            />
+          </div>
 
-        {/* Intro and Download */}
-        <div className="md:w-1/2 w-full flex flex-col justify-between p-6">
-          <div>
-            <h2 id="resume-modal-title" className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Divyansh Dubey</h2>
-            <div className="inline-block mb-2 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
-              Oracle Certified Java SE 11 Professional
+          {/* Intro and Download */}
+          <div className="md:w-1/2 w-full flex flex-col justify-between p-6">
+            <div>
+              <h2 id="resume-modal-title" className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Divyansh Dubey</h2>
+              <div className="inline-block mb-2 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
+                Oracle Certified Java SE 11 Professional
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 mb-2 font-medium">Full Stack Developer & Data Science Enthusiast</p>
+              <p className="text-gray-700 dark:text-gray-300 mb-2">
+                Currently working as a <span className="font-semibold text-blue-600 dark:text-cyan-400">Software Engineer at LTIMindtree</span>.
+              </p>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Passionate about building robust, scalable web applications and intelligent AI solutions. Experienced in Java, Python, Spring Boot, Angular, and cloud-native technologies.
+              </p>
             </div>
-            <p className="text-gray-700 dark:text-gray-300 mb-2 font-medium">Full Stack Developer & Data Science Enthusiast</p>
-            <p className="text-gray-700 dark:text-gray-300 mb-2">
-              Currently working as a <span className="font-semibold text-blue-600 dark:text-cyan-400">Software Engineer at LTIMindtree</span>.
-            </p>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Passionate about building robust, scalable web applications and intelligent AI solutions. Experienced in Java, Python, Spring Boot, Angular, and cloud-native technologies.
-            </p>
-          </div>
-          <div className="flex items-center gap-4 mt-4">
-            {/* Using a regular anchor tag for native download functionality */}
-            <a
-              href="/resume.pdf"
-              download="Divyansh_Dubey_Resume.pdf"
-              className="inline-flex items-center px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300 hover:shadow-xl focus-ring"
-            >
-              <Download className="w-5 h-5 mr-2" /> Download as PDF
-            </a>
-            <button
-              type="button"
-              onClick={() => setIsResumeOpen(false)}
-              className="ml-auto p-2 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-all duration-300 hover:scale-110 focus-ring"
-              aria-label="Close Resume Modal"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            <div className="flex items-center gap-4 mt-4">
+              {/* Using a regular anchor tag for native download functionality */}
+              <a
+                href="/resume.pdf"
+                download="Divyansh_Dubey_Resume.pdf"
+                className="inline-flex items-center px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300 hover:shadow-xl focus-ring"
+              >
+                <Download className="w-5 h-5 mr-2" /> Download as PDF
+              </a>
+              <button
+                type="button"
+                onClick={() => setIsResumeOpen(false)}
+                className="ml-auto p-2 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-all duration-300 hover:scale-110 focus-ring"
+                aria-label="Close Resume Modal"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  ));
+      </div>,
+      document.body
+    )
+  );
 
   return (
     <div className="min-h-screen">
@@ -260,7 +288,7 @@ const Home: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsResumeOpen(true)}
-              className="ml-4 px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300 hover:shadow-xl focus-ring pulse-glow"
+              className="ml-4 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:scale-105 transition-all duration-300 shadow-[0_0_15px_rgba(6,182,212,0.5)] hover:shadow-[0_0_25px_rgba(6,182,212,0.7)] ring-2 ring-cyan-400/50 ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-900 focus-ring relative overflow-hidden group"
               aria-expanded={isResumeOpen}
               aria-controls="resume-modal"
               aria-haspopup="dialog"
@@ -268,6 +296,7 @@ const Home: React.FC = () => {
               View Resume
             </button>
           </div>
+          {/* ResumeModal portals to document.body to avoid overflow-hidden clipping */}
           {isResumeOpen && <ResumeModal />}
         </div>
       </section>
@@ -326,7 +355,9 @@ const Home: React.FC = () => {
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <Icon className="w-12 h-12 mx-auto mb-4 opacity-80 hover:scale-110 transition-transform duration-300" aria-hidden="true" />
-                  <div className="text-3xl md:text-4xl font-bold mb-2">{stat.value}</div>
+                  <div className="text-3xl md:text-4xl font-bold mb-2">
+                    <Counter end={parseInt(stat.value)} suffix={stat.value.replace(/[0-9]/g, '')} />
+                  </div>
                   <div className="text-lg opacity-90">{stat.label}</div>
                 </div>
               );
@@ -348,8 +379,8 @@ const Home: React.FC = () => {
             <Carousel3D items={FEATURED_PROJECTS_DATA} />
           </div>
 
-          <div className="text-center mt-32 animate-fade-in">
-            <Link to="/projects" className="btn-primary inline-flex items-center hover-lift" style={{ marginTop: '1.5rem' }}>
+          <div className="text-center mt-12 animate-fade-in">
+            <Link to="/projects" className="btn-primary inline-flex items-center hover-lift">
               View All Projects
               <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
             </Link>

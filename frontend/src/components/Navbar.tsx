@@ -87,7 +87,7 @@ const Navbar: React.FC = () => {
 
         {/* Enhanced Mobile Navigation with Glassmorphism */}
         <div className={`md:hidden transition-all duration-500 ease-in-out ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-[30rem] opacity-100' : 'max-h-0 opacity-0'
         } overflow-hidden`}>
           <div className="glass-effect rounded-2xl shadow-xl border border-gray-200/20 dark:border-gray-700/20 mt-2 overflow-hidden">
             <div className="px-4 py-3 space-y-1">
